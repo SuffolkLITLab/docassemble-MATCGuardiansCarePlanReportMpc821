@@ -44,7 +44,7 @@ def find_package_data(where='.', package='', exclude=standard_exclude, exclude_d
     return out
 
 setup(name='docassemble.MATCGuardiansCarePlanReportMpc821',
-      version='1.0',
+      version='1.0.1',
       description=('Guardians care plan report'),
       long_description='# docassemble.GuardiansCarePlanReportMpc821\r\n\r\nGuardians care plan report\r\n\r\n## Author\r\n\r\nJC\r\nDL\r\n\r\n',
       long_description_content_type='text/markdown',

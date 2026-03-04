@@ -90,8 +90,6 @@ code: |
   AL_DEFAULT_STATE = "MA"
 ---
 code: |
----
-code: |
   al_form_type = "existing_case"
 ---
 code: |
@@ -162,6 +160,23 @@ code: |
   set_progress(75)
   servicer_name_full
   docket_number
+  trial_court
+  if isinstance(trial_court, str):
+    court_token = trial_court.strip()
+    if court_token.startswith("all_courts[") and court_token.endswith("]"):
+      court_index_text = court_token[len("all_courts["):-1]
+      if court_index_text.isdigit():
+        court_index = int(court_index_text)
+        if 0 <= court_index < len(all_courts):
+          trial_court = all_courts[court_index]
+    elif court_token:
+      for court_option in all_courts:
+        if str(getattr(court_option, "division", "")).strip().lower() == court_token.lower():
+          trial_court = court_option
+          break
+  if isinstance(trial_court, str) and len(all_courts):
+    # Last-resort fallback for malformed API values; avoids crashing on .division.
+    trial_court = all_courts[0]
   trial_court.division
   nav.set_section("review_guardians_care_plan_report_mpc_821")
   set_progress(99)
@@ -255,7 +270,7 @@ id: report_type_and_period
 question: |
   What type of report are you filing?
 subquestion: |
-  Indicate whether this is a 60-day report, annual report, or final report.
+  Indicate whether this is a 60-day report or annual report.
 fields:
   - Report type: report_type
     datatype: radio
