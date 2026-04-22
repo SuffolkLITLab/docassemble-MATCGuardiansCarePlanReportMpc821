@@ -44,16 +44,16 @@ def find_package_data(where='.', package='', exclude=standard_exclude, exclude_d
     return out
 
 setup(name='docassemble.MATCGuardiansCarePlanReportMpc821',
-      version='1.0',
+      version='1.0.3',
       description=('Guardians care plan report'),
-      long_description='# docassemble.GuardiansCarePlanReportMpc821\r\n\r\nGuardians care plan report\r\n\r\n## Author\r\n\r\nJC\r\nDL\r\n\r\n',
+      long_description='# docassemble.GuardiansCarePlanReportMpc821\r\n\r\nGuardians care plan report\r\n\r\n## Author\r\n\r\nJC\r\nDL\r\n',
       long_description_content_type='text/markdown',
       author='JC, DL',
       author_email='derek.loren@su.suffolk.edu',
       license='MIT',
       url='https://courtformsonline.org',
       packages=find_namespace_packages(),
-      install_requires=['docassemble.ALMassachusetts>=0.1.2', 'docassemble.AssemblyLine @ git+https://github.com/SuffolkLITLab/docassemble-AssemblyLine.git@main', 'docassemble.MassAccess @ git+https://github.com/SuffolkLITLab/docassemble-MassAccess.git@main'],
+      install_requires=['docassemble.ALMassachusetts>=0.2.0', 'docassemble.AssemblyLine @ git+https://github.com/SuffolkLITLab/docassemble-AssemblyLine.git@main', 'docassemble.MassAccess @ git+https://github.com/SuffolkLITLab/docassemble-MassAccess.git@main'],
       zip_safe=False,
       package_data=find_package_data(where='docassemble/MATCGuardiansCarePlanReportMpc821/', package='docassemble.MATCGuardiansCarePlanReportMpc821'),
      )

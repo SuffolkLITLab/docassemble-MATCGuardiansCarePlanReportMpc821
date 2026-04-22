@@ -90,8 +90,6 @@ code: |
   AL_DEFAULT_STATE = "MA"
 ---
 code: |
----
-code: |
   al_form_type = "existing_case"
 ---
 code: |
@@ -103,9 +101,8 @@ sections:
   - living_situation: Living situation
   - health_services: Health and services
   - contact_decisions: Contact and decisions
-  - hospitalizations: Hospitalizations
-  - crime_abuse_neglect: Crime, abuse, or neglect
-  - finances: Finances
+  - hospitalizations_future_care: Hospitalizations and future care
+  - safety_finances: Safety and finances
   - review_guardians_care_plan_report_mpc_821: Review and sign
 ---
 comment: |
@@ -119,30 +116,38 @@ code: |
   user_ask_role = "na"
   patient1_name_first
   report_type
+  reportperiod_beginning
   nav.set_section("about_adult")
   guardian_relationship
   patient1_address_on_one_line
   nav.set_section("living_situation")
   housing_type
   is_housing
+  is_having_visitors
+  if is_having_visitors or is_making_calls or is_mailing or is_participating:
+    patient_restricted_living_explanation
   set_progress(15)
   nav.set_section("health_services")
   patient_mental_condition
+  patient_physical_condition
+  patient_social_condition
   patient_services_list
+  patient_education_list
+  patient_vocational_list
+  patient_other_services_list
+  set_progress(35)
+  nav.set_section("contact_decisions")
   contact_frequency
   if if_decision_making:
     decision_making_areas
-  set_progress(35)
-  nav.set_section("contact_decisions")
   summary_interaction_explanation
-  nav.set_section("hospitalizations")
+  nav.set_section("hospitalizations_future_care")
   is_acute_medical
   future_plans_explanation
   should_guardianship_continue_change_explanation
   set_progress(55)
-  nav.set_section("crime_abuse_neglect")
+  nav.set_section("safety_finances")
   is_crime_abuse_neglect_yes
-  nav.set_section("finances")
   is_fiduciary
   if is_fiduciary:
     fiduciary_types
@@ -162,6 +167,23 @@ code: |
   set_progress(75)
   servicer_name_full
   docket_number
+  trial_court
+  if isinstance(trial_court, str):
+    court_token = trial_court.strip()
+    if court_token.startswith("all_courts[") and court_token.endswith("]"):
+      court_index_text = court_token[len("all_courts["):-1]
+      if court_index_text.isdigit():
+        court_index = int(court_index_text)
+        if 0 <= court_index < len(all_courts):
+          trial_court = all_courts[court_index]
+    elif court_token:
+      for court_option in all_courts:
+        if str(getattr(court_option, "division", "")).strip().lower() == court_token.lower():
+          trial_court = court_option
+          break
+  if isinstance(trial_court, str) and len(all_courts):
+    # Last-resort fallback for malformed API values; avoids crashing on .division.
+    trial_court = all_courts[0]
   trial_court.division
   nav.set_section("review_guardians_care_plan_report_mpc_821")
   set_progress(99)
@@ -255,7 +277,7 @@ id: report_type_and_period
 question: |
   What type of report are you filing?
 subquestion: |
-  Indicate whether this is a 60-day report, annual report, or final report.
+  Indicate whether this is a 60-day report or annual report.
 fields:
   - Report type: report_type
     datatype: radio
@@ -363,12 +385,16 @@ fields:
     datatype: yesno
   - Is the adult restricted from participating in activities?: is_participating
     datatype: yesno
+---
+id: living_restrictions_explanation
+question: |
+  Explain the reasons for the restrictions
+subquestion: |
+  Describe why the adult is restricted from visitors, phone calls, mail, or activities.
+fields:
   - Explain the reasons for these restrictions: patient_restricted_living_explanation
     input type: area
     required: False
-    show if:
-      code: |
-        is_having_visitors or is_making_calls or is_mailing or is_participating
 ---
 id: mental_health_status
 question: |
@@ -386,6 +412,17 @@ fields:
   - Explanation: patient_overall_condition_explanation
     input type: area
     required: False
+help: |
+  **Mental health rating guide**
+
+  **Excellent:** Thinking is clear. Understands what is happening and can make decisions most of the time.
+
+  **Good:** Usually thinks clearly, but may have some confusion or memory problems at times.
+
+  **Fair:** Often has trouble with memory, understanding, or making decisions. Needs regular help.
+
+  **Poor:** Very confused most of the time. Cannot make decisions without full support.
+  
 ---
 id: physical_health_status
 question: |
@@ -400,6 +437,16 @@ fields:
       - Good: good
       - Fair: fair
       - Poor: poor
+help: |
+  **Physical health rating guide**
+
+  **Excellent:** Very good health. Can move around and take care of daily needs without help.
+
+  **Good:** Some health issues, but mostly able to care for self. May need a little help.
+
+  **Fair:** Ongoing health problems. Needs regular help with daily tasks.
+
+  **Poor:** Serious health problems. Depends on others for most or all daily care.
 ---
 id: social_health_status
 question: |
@@ -414,6 +461,16 @@ fields:
       - Good: good
       - Fair: fair
       - Poor: poor
+help: |
+  **Social health rating guide**
+
+  **Excellent:** Has regular contact with family, friends, or community and takes part in activities.
+
+  **Good:** Has some social contact and participates in activities sometimes.
+
+  **Fair:** Has limited contact with others and may feel lonely at times.
+
+  **Poor:** Has little to no social contact and is mostly isolated.
 ---
 id: medical_services
 question: |
@@ -433,14 +490,32 @@ fields:
 ---
 id: educational_services
 question: |
-  What educational or vocational services does the adult receive?
+  What educational services does the adult receive?
 subquestion: |
-  List any educational programs, training, or vocational services. If the adult does not receive these services, check that box.
+  List any educational programs, classes, or training the adult receives. If the adult does not receive educational services, check that box.
 fields:
-  - Type of educational/vocational services: patient_education_list
+  - Type of educational services: patient_education_list
     maxlength: 71
     required: False
   - How adequate are these services?: education_services_rating
+    datatype: radio
+    choices:
+      - Excellent: excellent
+      - Good: good
+      - Fair: fair
+      - Poor: poor
+      - Not receiving this service: none
+---
+id: vocational_services
+question: |
+  What vocational services does the adult receive?
+subquestion: |
+  List any vocational, job training, employment support, or day habilitation services the adult receives. If the adult does not receive vocational services, check that box.
+fields:
+  - Type of vocational services: patient_vocational_list
+    maxlength: 71
+    required: False
+  - How adequate are these services?: vocational_services_rating
     datatype: radio
     choices:
       - Excellent: excellent
@@ -653,22 +728,31 @@ subquestion: |
 fields:
   - "Servicer name full": servicer_name_full
     maxlength: 48
+    default: ${ ((guardians[0].name.first if defined("guardians[0].name.first") else "") + " " + (guardians[0].name.last if defined("guardians[0].name.last") else "")).strip() }
   - "Servicer address address": servicer_address_address
     maxlength: 35
+    default: ${ guardians[0].address.address if defined("guardians[0].address.address") else "" }
   - "Servicer address unit": servicer_address_unit
     maxlength: 12
+    default: ${ guardians[0].address.unit if defined("guardians[0].address.unit") else "" }
   - "Servicer address city": servicer_address_city
     maxlength: 27
+    default: ${ guardians[0].address.city if defined("guardians[0].address.city") else "" }
   - "Servicer address state": servicer_address_state
     maxlength: 6
+    default: ${ guardians[0].address.state if defined("guardians[0].address.state") else "" }
   - "Servicer address zip": servicer_address_zip
     maxlength: 12
+    default: ${ guardians[0].address.zip if defined("guardians[0].address.zip") else "" }
   - "Servicer phone number": servicer_phone_number
     maxlength: 35
+    default: ${ guardians[0].phone_number if defined("guardians[0].phone_number") else "" }
   - "BBO number": bbo_number
     maxlength: 41
+    default: ""
   - "Servicer email": servicer_email
     maxlength: 41
+    default: ${ guardians[0].email if defined("guardians[0].email") else "" }
 ---
 id: preview guardians_care_plan_report_mpc_821
 question: |
@@ -825,12 +909,20 @@ review:
       ${ medical_services_rating }
   - Edit: patient_education_list
     button: |
-      **Educational/vocational services**:
+      **Educational services**:
       ${ patient_education_list }
   - Edit: education_services_rating
     button: |
       **Educational services adequacy**:
       ${ education_services_rating }
+  - Edit: patient_vocational_list
+    button: |
+      **Vocational services**:
+      ${ patient_vocational_list }
+  - Edit: vocational_services_rating
+    button: |
+      **Vocational services adequacy**:
+      ${ vocational_services_rating }
   - Edit: patient_other_services_list
     button: |
       **Other services**:
@@ -1149,12 +1241,12 @@ attachment:
       - "patient_education_fair": ${ education_services_rating == "fair" }
       - "patient_education_poor": ${ education_services_rating == "poor" }
       - "patient_education_none": ${ education_services_rating == "none" }
-      - "patient_vocational_list": ${ patient_education_list }
-      - "patient_vocational_excellent": ${ education_services_rating == "excellent" }
-      - "patient_vocational_good": ${ education_services_rating == "good" }
-      - "patient_vocational_fair": ${ education_services_rating == "fair" }
-      - "patient_vocational_poor": ${ education_services_rating == "poor" }
-      - "patient_vocational_none": ${ education_services_rating == "none" }
+      - "patient_vocational_list": ${ patient_vocational_list }
+      - "patient_vocational_excellent": ${ vocational_services_rating == "excellent" }
+      - "patient_vocational_good": ${ vocational_services_rating == "good" }
+      - "patient_vocational_fair": ${ vocational_services_rating == "fair" }
+      - "patient_vocational_poor": ${ vocational_services_rating == "poor" }
+      - "patient_vocational_none": ${ vocational_services_rating == "none" }
       - "patient_other_services_list": ${ patient_other_services_list }
       - "patient_other_services_excellent": ${ other_services_rating == "excellent" }
       - "patient_other_services_good": ${ other_services_rating == "good" }
