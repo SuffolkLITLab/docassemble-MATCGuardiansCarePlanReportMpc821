@@ -126,6 +126,8 @@ code: |
   set_progress(15)
   nav.set_section("health_services")
   patient_mental_condition
+  patient_physical_condition
+  patient_social_condition
   patient_services_list
   contact_frequency
   if if_decision_making:
@@ -401,6 +403,17 @@ fields:
   - Explanation: patient_overall_condition_explanation
     input type: area
     required: False
+help: |
+  **Mental health rating guide**
+
+  **Excellent:** Thinking is clear. Understands what is happening and can make decisions most of the time.
+
+  **Good:** Usually thinks clearly, but may have some confusion or memory problems at times.
+
+  **Fair:** Often has trouble with memory, understanding, or making decisions. Needs regular help.
+
+  **Poor:** Very confused most of the time. Cannot make decisions without full support.
+  
 ---
 id: physical_health_status
 question: |
@@ -415,6 +428,16 @@ fields:
       - Good: good
       - Fair: fair
       - Poor: poor
+help: |
+  **Physical health rating guide**
+
+  **Excellent:** Very good health. Can move around and take care of daily needs without help.
+
+  **Good:** Some health issues, but mostly able to care for self. May need a little help.
+
+  **Fair:** Ongoing health problems. Needs regular help with daily tasks.
+
+  **Poor:** Serious health problems. Depends on others for most or all daily care.
 ---
 id: social_health_status
 question: |
@@ -429,6 +452,16 @@ fields:
       - Good: good
       - Fair: fair
       - Poor: poor
+help: |
+  **Social health rating guide**
+
+  **Excellent:** Has regular contact with family, friends, or community and takes part in activities.
+
+  **Good:** Has some social contact and participates in activities sometimes.
+
+  **Fair:** Has limited contact with others and may feel lonely at times.
+
+  **Poor:** Has little to no social contact and is mostly isolated.
 ---
 id: medical_services
 question: |
