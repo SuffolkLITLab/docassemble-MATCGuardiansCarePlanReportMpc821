@@ -90,8 +90,6 @@ code: |
   AL_DEFAULT_STATE = "MA"
 ---
 code: |
----
-code: |
   al_form_type = "existing_case"
 ---
 code: |
@@ -128,6 +126,8 @@ code: |
   set_progress(15)
   nav.set_section("health_services")
   patient_mental_condition
+  patient_physical_condition
+  patient_social_condition
   patient_services_list
   contact_frequency
   if if_decision_making:
@@ -162,7 +162,7 @@ code: |
   set_progress(75)
   servicer_name_full
   docket_number
-  trial_court.division
+  trial_court_division
   nav.set_section("review_guardians_care_plan_report_mpc_821")
   set_progress(99)
   servicer_signature
@@ -226,36 +226,38 @@ fields:
     required: False
   - Last name: patient1_name_last
     maxlength: 26
-# ---
-# id: court_information
-# question: |
-#   Court Information
-# subquestion: |
-#   Provide the case number and select your court division.
-# fields:
-#   - Docket number: docket_number
-#   - Court division: trial_court.division
-#     input type: dropdown
-#     choices:
-#       - Boston: Boston
-#       - Barnstable: Barnstable
-#       - Berkshire: Berkshire
-#       - Essex: Essex
-#       - Franklin: Franklin
-#       - Hampden: Hampden
-#       - Hampshire: Hampshire
-#       - Middlesex: Middlesex
-#       - Nantucket: Nantucket
-#       - Norfolk: Norfolk
-#       - Plymouth: Plymouth
-#       - Suffolk: Suffolk
-#       - Worcester: Worcester
+---
+id: court_information
+question: |
+  Court information
+subquestion: |
+  Enter the docket number and choose the Probate and Family Court division.
+fields:
+  - Docket number: docket_number
+  - Trial court division: trial_court_division
+    input type: dropdown
+    choices:
+      - Boston
+      - Barnstable
+      - Berkshire
+      - Bristol
+      - Dukes
+      - Essex
+      - Franklin
+      - Hampden
+      - Hampshire
+      - Middlesex
+      - Nantucket
+      - Norfolk
+      - Plymouth
+      - Suffolk
+      - Worcester
 ---
 id: report_type_and_period
 question: |
   What type of report are you filing?
 subquestion: |
-  Indicate whether this is a 60-day report, annual report, or final report.
+  Indicate whether this is a 60-day report or annual report.
 fields:
   - Report type: report_type
     datatype: radio
@@ -386,6 +388,17 @@ fields:
   - Explanation: patient_overall_condition_explanation
     input type: area
     required: False
+help: |
+  **Mental health rating guide**
+
+  **Excellent:** Thinking is clear. Understands what is happening and can make decisions most of the time.
+
+  **Good:** Usually thinks clearly, but may have some confusion or memory problems at times.
+
+  **Fair:** Often has trouble with memory, understanding, or making decisions. Needs regular help.
+
+  **Poor:** Very confused most of the time. Cannot make decisions without full support.
+  
 ---
 id: physical_health_status
 question: |
@@ -400,6 +413,16 @@ fields:
       - Good: good
       - Fair: fair
       - Poor: poor
+help: |
+  **Physical health rating guide**
+
+  **Excellent:** Very good health. Can move around and take care of daily needs without help.
+
+  **Good:** Some health issues, but mostly able to care for self. May need a little help.
+
+  **Fair:** Ongoing health problems. Needs regular help with daily tasks.
+
+  **Poor:** Serious health problems. Depends on others for most or all daily care.
 ---
 id: social_health_status
 question: |
@@ -414,6 +437,1039 @@ fields:
       - Good: good
       - Fair: fair
       - Poor: poor
+help: |
+  **Social health rating guide**
+
+  **Excellent:** Has regular contact with family, friends, or community and takes part in activities.
+
+  **Good:** Has some social contact and participates in activities sometimes.
+
+  **Fair:** Has limited contact with others and may feel lonely at times.
+
+  **Poor:** Has little to no social contact and is mostly isolated.
+---
+id: medical_services
+question: |
+  What medical services does the adult receive?
+subquestion: |
+  List the types of medical services. Examples include visits with a primary care provider, specialists, dentist, or other healthcare providers. Rate the adequacy of these services.
+fields:
+  - Type of medical services: patient_services_list
+    maxlength: 74
+  - How adequate are these services?: medical_services_rating
+    datatype: radio
+    choices:
+      - Excellent: excellent
+      - Good: good
+      - Fair: fair
+      - Poor: poor
+---
+id: educational_services
+question: |
+  What educational or vocational services does the adult receive?
+subquestion: |
+  List any educational programs, training, or vocational services. If the adult does not receive these services, check that box.
+fields:
+  - Type of educational/vocational services: patient_education_list
+    maxlength: 71
+    required: False
+  - How adequate are these services?: education_services_rating
+    datatype: radio
+    choices:
+      - Excellent: excellent
+      - Good: good
+      - Fair: fair
+      - Poor: poor
+      - Not receiving this service: none
+---
+id: other_services
+question: |
+  What other services does the adult receive?
+subquestion: |
+  List any additional services such as meal delivery, housekeeping, transportation, recreation, or other support. Rate the adequacy of these services.
+fields:
+  - Type of other services: patient_other_services_list
+    maxlength: 75
+  - How adequate are these services?: other_services_rating
+    datatype: radio
+    choices:
+      - Excellent: excellent
+      - Good: good
+      - Fair: fair
+      - Poor: poor
+---
+id: contact_with_adult
+question: |
+  How often did you have contact with the adult during this reporting period?
+subquestion: |
+  Select the option that best represents your typical contact with the adult.
+fields:
+  - Contact frequency: contact_frequency
+    datatype: radio
+    choices:
+      - Daily: daily
+      - Weekly: weekly
+      - Monthly: monthly
+      - Quarterly: quarterly
+      - No contact during this period: never
+      - Other frequency: other
+  - Describe the frequency: contact_freq_other_explanation
+    maxlength: 75
+    required: False
+    show if:
+      variable: contact_frequency
+      is: other
+---
+id: decision_making_participation
+question: |
+  Did the adult participate in decision-making?
+subquestion: |
+  Massachusetts law requires guardians to encourage the adult to take part in decisions affecting their life. Tell the court how much the adult took part.
+fields:
+  - Did the adult participate in any decision-making?: if_decision_making
+    datatype: yesnoradio
+---
+id: what_decisions
+question: |
+  Which of these decisions did the adult participate in?
+subquestion: |
+  Select all that apply. Include any other areas where the adult participated.
+fields:
+  - Decisions: decision_making_areas
+    datatype: checkboxes
+    choices:
+      - Medical care decisions: medical
+      - Meal planning and food choices: meals
+      - Activities and recreation: extracurriculars
+      - Clothing and personal appearance: clothes
+      - Other decisions: other
+    none of the above: False
+  - Describe other areas: decision_making_other_explanation
+    maxlength: 74
+    required: False
+    show if: decision_making_areas.get("other", False)
+---
+id: healthcare_provider_interaction
+question: |
+  Tell us about your contact with the adult's healthcare providers
+subquestion: |
+  Share a summary of how you've worked with the adult's doctors and healthcare team. Include details about communication and the quality of care.
+fields:
+  - Summary of interactions: summary_interaction_explanation
+    input type: area
+---
+id: hospitalization_and_treatment
+question: |
+  Has the adult been hospitalized or admitted to a medical facility?
+subquestion: |
+  Tell us about any hospital stays, facility admissions, or emergency room visits during this reporting period. If there were no such admissions, check "No."
+fields:
+  - Was the adult hospitalized or admitted to a facility?: is_acute_medical
+    datatype: yesnoradio
+  - Describe the location and reason: acute_medical_location
+    maxlength: 90
+    show if: is_acute_medical
+  - Does the treatment or habilitation plan support the adult's best interests?: acute_medical_best
+    datatype: yesnoradio
+    show if: is_acute_medical
+---
+id: future_care_plans
+question: |
+  What are your plans for the future care of the adult?
+subquestion: |
+  Describe what you expect to happen with the adult's care and services. If current care arrangements are working well and will continue, explain that. Do not simply write "no changes" without explanation.
+fields:
+  - Future care plans and expectations: future_plans_explanation
+    input type: area
+---
+id: guardianship_continuation
+question: |
+  Should the guardianship continue or change?
+subquestion: |
+  Tell the court whether you think the guardianship should continue. If you recommend changes to your legal authority, explain them. Note: You must file a petition with the court to make any official changes.
+fields:
+  - Your recommendations: should_guardianship_continue_change_explanation
+    input type: area
+---
+id: crime_abuse_reports
+question: |
+  Have there been any criminal charges, abuse reports, or neglect reports?
+subquestion: |
+  Tell the court about any involvement with law enforcement, the Disabled Persons Protection Commission, adult protective services, or any government agency investigation involving you or the adult. Include all charges, complaints, or reports even if they were not proven.
+fields:
+  - Were there any such incidents?: is_crime_abuse_neglect_yes
+    datatype: yesnoradio
+  - Provide details: crime_abuse_neglect_explanation
+    maxlength: 90
+    show if: is_crime_abuse_neglect_yes
+---
+id: fiduciary_responsibility
+question: |
+  Do you hold or manage the adult's financial funds?
+subquestion: |
+  Check "Yes" if you receive or manage money that belongs to the adult. This includes Social Security benefits, inheritances, or other assets. If you also serve as conservator, you must file a separate Conservator's Account.
+fields:
+  - Do you hold financial funds for the adult?: is_fiduciary
+    datatype: yesnoradio
+---
+id: fiduciary_role
+question: |
+  What role gives you authority to hold the adult's funds?
+subquestion: |
+  Select all that apply. If none apply, explain why you have legal authority to hold the funds.
+fields:
+  - Financial authority: fiduciary_types
+    datatype: checkboxes
+    choices:
+      - Representative payee for Social Security benefits: rep_payee
+      - Conservator (appointed by the court): conservator
+      - Power of attorney: attorney
+      - ABLE account holder: able_account
+      - Trustee of a trust: trustee
+      - Other authority: other
+    none of the above: False
+  - Explain your role: fiduciary_type_other_explanation
+    maxlength: 90
+    required: False
+    show if: fiduciary_types.get("other", False)
+---
+id: Guardian 1 Signature
+question: |
+  Guardian 1 information
+subquestion: |
+  Confirm whether Guardian 1's address has changed and enter the date Guardian 1 signed this report.
+fields:
+  - "Is guardian1 address update": is_guardian1_address_update
+    datatype: yesno
+  - "Date of guardian1 signature": guardian1_signature_date
+    datatype: date
+---
+id: Guardian 2 Signature
+question: |
+  Guardian 2 information
+subquestion: |
+  If there is a second guardian, confirm whether their address has changed and enter the date they signed this report.
+fields:
+  - "Is guardian2 address update": is_guardian2_address_update
+    datatype: yesno
+  - "Date of guardian2 signature": guardian2_signature_date
+    datatype: date
+---
+id: certificate of service preamble
+question: |
+  Certificate of service
+subquestion: |
+  Enter the date you served the report and how copies were delivered to required recipients.
+fields:
+  - "Date of servicer signature": servicer_signature_date
+    datatype: date
+  - "Is adult submission method hand": is_adult_submission_method_hand
+    datatype: yesno
+  - "Is adult submission method mail": is_adult_submission_method_mail
+    datatype: yesno
+  - "Is attorney submission method hand": is_attorney_submission_method_hand
+    datatype: yesno
+  - "Is attorney submission method mail": is_attorney_submission_method_mail
+    datatype: yesno
+  - "Is attorney submission method email": is_attorney_submission_method_email
+    datatype: yesno
+  - "By handing it to them 3": by_handing_it_to_them_3
+    datatype: yesno
+  - "By mailing it to the address they provided to the court": by_mailing_it_to_the_address_they_provided_to_the_court
+    datatype: yesno
+---
+id: Servicer Signature Close Out
+question: |
+  Your contact information
+subquestion: |
+  Enter the contact information for the person who signs the certificate of service.
+fields:
+  - "Servicer name full": servicer_name_full
+    maxlength: 48
+  - "Servicer address address": servicer_address_address
+    maxlength: 35
+  - "Servicer address unit": servicer_address_unit
+    maxlength: 12
+  - "Servicer address city": servicer_address_city
+    maxlength: 27
+  - "Servicer address state": servicer_address_state
+    maxlength: 6
+  - "Servicer address zip": servicer_address_zip
+    maxlength: 12
+  - "Servicer phone number": servicer_phone_number
+    maxlength: 35
+  - "BBO number": bbo_number
+    maxlength: 41
+  - "Servicer email": servicer_email
+    maxlength: 41
+---
+id: preview guardians_care_plan_report_mpc_821
+question: |
+  Preview your form before you sign it
+subquestion: |
+  Here is a preview of the form you will sign on the next page.   
+  
+  ${ al_court_bundle.as_pdf(key='preview') }
+
+  Click the image to open it in a new tab. Click the "Edit answers" button
+  to edit your answers.
+
+  ${ action_button_html(url_action('review_guardians_care_plan_report_mpc_821'), label='Edit answers', color='info') }
+  
+  Remember to come back to this window to continue and sign your form.
+continue button field: guardians_care_plan_report_mpc_821_preview_question    
+---
+code: |
+  # signature_fields = ['guardians[0].signature', 'guardians[1].signature', 'servicer_signature']
+  signature_fields = [g.attr_name("signature") for g in guardians]
+---
+id: servicer_signature_screen
+question: |
+  Your signature
+subquestion: |
+  Sign below to certify that you have provided true and accurate information under the penalties of perjury.
+signature: servicer_signature
+---
+code: |
+  # This is a placeholder for the addresses that will be searched
+  # for matching address to court. Edit if court venue is based on
+  # a different address than the user's
+  [user.address.address for user in guardians.complete_elements()]
+  addresses_to_search = [user.address for user in guardians.complete_elements()]
+---
+id: guardians care plan report mpc 821 review screen
+event: review_guardians_care_plan_report_mpc_821
+question: |
+  Review your answers
+review:
+  - Edit: docket_number
+    button: |
+      **Docket number**:
+      ${ docket_number }
+  - Edit: trial_court_division
+    button: |
+      **Trial court division**:
+      ${ trial_court_division }
+  - Edit: patient1_name_first
+    button: |
+      **Adult's name**:
+      ${ patient1_name_first } ${ patient1_name_middleinitial if patient1_name_middleinitial else '' } ${ patient1_name_last }
+  - Edit: report_type
+    button: |
+      **Report type**:
+      ${ report_type }
+  - Edit: reportperiod_beginning
+    button: |
+      **Reporting period begins**:
+      ${ reportperiod_beginning }
+  - Edit: reportperiod_end
+    button: |
+      **Reporting period ends**:
+      ${ reportperiod_end }
+  - Edit: guardian_relationship
+    button: |
+      **Relationship to adult**:
+      ${ guardian_relationship }
+  - Edit: relation_professional_description
+    button: |
+      **Professional role description**:
+      ${ relation_professional_description if guardian_relationship == "professional" else "N/A" }
+    show if: guardian_relationship == "professional"
+  - Edit: relation_other_description
+    button: |
+      **Relationship description**:
+      ${ relation_other_description if guardian_relationship == "other" else "N/A" }
+    show if: guardian_relationship == "other"
+  - Edit: patient1_address_on_one_line
+    button: |
+      **Current address**:
+      ${ patient1_address_on_one_line }
+  - Edit: housing_type
+    button: |
+      **Living arrangement**:
+      ${ housing_type }
+  - Edit: patient_housing_other_description
+    button: |
+      **Other housing description**:
+      ${ patient_housing_other_description if housing_type == "other" else "N/A" }
+    show if: housing_type == "other"
+  - Edit: is_housing
+    button: |
+      **Lived at other addresses during reporting period**:
+      ${ word(yesno(is_housing)) }
+  - Edit: other_patient_address_on_one_line
+    button: |
+      **Other address**:
+      ${ other_patient_address_on_one_line }
+    show if: is_housing
+  - Edit: other_patient_address_explanation
+    button: |
+      **Type of location**:
+      ${ other_patient_address_explanation }
+    show if: is_housing
+  - Edit: is_having_visitors
+    button: |
+      **Visitor restrictions**:
+      ${ word(yesno(is_having_visitors)) }
+  - Edit: is_making_calls
+    button: |
+      **Phone call restrictions**:
+      ${ word(yesno(is_making_calls)) }
+  - Edit: is_mailing
+    button: |
+      **Mail restrictions**:
+      ${ word(yesno(is_mailing)) }
+  - Edit: is_participating
+    button: |
+      **Activity participation restrictions**:
+      ${ word(yesno(is_participating)) }
+  - Edit: patient_restricted_living_explanation
+    button: |
+      **Restrictions explanation**:
+      > ${ single_paragraph(patient_restricted_living_explanation) }
+    show if: |
+      is_having_visitors or is_making_calls or is_mailing or is_participating
+  - Edit: patient_mental_condition
+    button: |
+      **Mental health**:
+      ${ patient_mental_condition }
+  - Edit: patient_physical_condition
+    button: |
+      **Physical health**:
+      ${ patient_physical_condition }
+  - Edit: patient_social_condition
+    button: |
+      **Social health**:
+      ${ patient_social_condition }
+  - Edit: patient_overall_condition_explanation
+    button: |
+      **Overall condition explanation**:
+      > ${ single_paragraph(patient_overall_condition_explanation) }
+  - Edit: patient_services_list
+    button: |
+      **Medical services**:
+      ${ patient_services_list }
+  - Edit: medical_services_rating
+    button: |
+      **Medical services adequacy**:
+      ${ medical_services_rating }
+  - Edit: patient_education_list
+    button: |
+      **Educational/vocational services**:
+      ${ patient_education_list }
+  - Edit: education_services_rating
+    button: |
+      **Educational services adequacy**:
+      ${ education_services_rating }
+  - Edit: patient_other_services_list
+    button: |
+      **Other services**:
+      ${ patient_other_services_list }
+  - Edit: other_services_rating
+    button: |
+      **Other services adequacy**:
+      ${ other_services_rating }
+  - Edit: contact_frequency
+    button: |
+      **Contact frequency**:
+      ${ contact_frequency }
+  - Edit: contact_freq_other_explanation
+    button: |
+      **Contact frequency explanation**:
+      ${ contact_freq_other_explanation if contact_frequency == "other" else "N/A" }
+    show if: contact_frequency == "other"
+  - Edit: if_decision_making
+    button: |
+      **Adult participated in decisions**:
+      ${ word(yesno(if_decision_making)) }
+  - Edit: decision_making_areas
+    button: |
+      **Decision-making areas**:
+      ${ decision_making_areas.true_values() }
+  - Edit: decision_making_other_explanation
+    button: |
+      **Other decision-making areas**:
+      ${ decision_making_other_explanation if decision_making_areas.get("other", False) else "N/A" }
+    show if: decision_making_areas.get("other", False)
+  - Edit: summary_interaction_explanation
+    button: |
+      **Healthcare provider interactions**:
+      > ${ single_paragraph(summary_interaction_explanation) }
+  - Edit: is_acute_medical
+    button: |
+      **Adult was hospitalized**:
+      ${ word(yesno(is_acute_medical)) }
+  - Edit: acute_medical_location
+    button: |
+      **Location and reason for hospitalization**:
+      ${ acute_medical_location }
+    show if: is_acute_medical
+  - Edit: acute_medical_best
+    button: |
+      **Treatment plan supports best interests**:
+      ${ word(yesno(acute_medical_best)) }
+    show if: is_acute_medical
+  - Edit: future_plans_explanation
+    button: |
+      **Future plans explanation**:
+      > ${ single_paragraph(future_plans_explanation) }
+  - Edit: should_guardianship_continue_change_explanation
+    button: |
+      **Should guardianship continue change explanation**:
+      > ${ single_paragraph(should_guardianship_continue_change_explanation) }
+  - Edit: is_crime_abuse_neglect_yes
+    button: |
+      **Criminal charges, abuse reports, or neglect reports**:
+      ${ word(yesno(is_crime_abuse_neglect_yes)) }
+  - Edit: crime_abuse_neglect_explanation
+    button: |
+      **Details**:
+      ${ crime_abuse_neglect_explanation }
+    show if: is_crime_abuse_neglect_yes
+  - Edit: is_fiduciary
+    button: |
+      **Holds financial funds**:
+      ${ word(yesno(is_fiduciary)) }
+  - Edit: fiduciary_types
+    button: |
+      **Financial authority types**:
+      ${ fiduciary_types.true_values() }
+    show if: is_fiduciary
+  - Edit: fiduciary_type_other_explanation
+    button: |
+      **Other authority explanation**:
+      ${ fiduciary_type_other_explanation if fiduciary_types.get("other", False) else "N/A" }
+    show if: fiduciary_types.get("other", False)
+  - Edit: guardians.revisit
+    button: |
+      **Guardians**
+
+      % for item in guardians:
+        * ${ item }
+      % endfor
+  - Edit: is_guardian1_address_update
+    button: |
+      **Guardian 1 address updated**:
+      ${ word(yesno(is_guardian1_address_update)) }
+  - Edit: is_guardian2_address_update
+    button: |
+      **Guardian 2 address updated**:
+      ${ word(yesno(is_guardian2_address_update)) }
+    show if: len(guardians) > 1
+  - Edit: guardian1_signature_date
+    button: |
+      **Guardian 1 signature date**:
+      ${ guardian1_signature_date }
+  - Edit: guardian2_signature_date
+    button: |
+      **Guardian 2 signature date**:
+      ${ guardian2_signature_date }
+    show if: len(guardians) > 1
+  - Edit: servicer_signature_date
+    button: |
+      **Servicer signature date**:
+      ${ servicer_signature_date }
+  - Edit: is_adult_submission_method_hand
+    button: |
+      **Served on adult: by handing**:
+      ${ word(yesno(is_adult_submission_method_hand)) }
+  - Edit: is_adult_submission_method_mail
+    button: |
+      **Served on adult: by mailing**:
+      ${ word(yesno(is_adult_submission_method_mail)) }
+  - Edit: is_attorney_submission_method_hand
+    button: |
+      **Served on attorney: by handing**:
+      ${ word(yesno(is_attorney_submission_method_hand)) }
+  - Edit: is_attorney_submission_method_mail
+    button: |
+      **Served on attorney: by mailing**:
+      ${ word(yesno(is_attorney_submission_method_mail)) }
+  - Edit: is_attorney_submission_method_email
+    button: |
+      **Served on attorney: by email**:
+      ${ word(yesno(is_attorney_submission_method_email)) }
+  - Edit: by_handing_it_to_them_3
+    button: |
+      **By handing it to them 3**:
+      ${ word(yesno(by_handing_it_to_them_3)) }
+  - Edit: by_mailing_it_to_the_address_they_provided_to_the_court
+    button: |
+      **By mailing it to the address they provided to the court**:
+      ${ word(yesno(by_mailing_it_to_the_address_they_provided_to_the_court)) }
+  - Edit: servicer_signature
+    button: |
+      **servicer_signature**:
+      ${ servicer_signature }
+  - Edit: servicer_name_full
+    button: |
+      **Servicer name full**:
+      ${ servicer_name_full }
+  - Edit: servicer_address_address
+    button: |
+      **Servicer address address**:
+      ${ servicer_address_address }
+  - Edit: servicer_address_unit
+    button: |
+      **Servicer address unit**:
+      ${ servicer_address_unit }
+  - Edit: servicer_address_city
+    button: |
+      **Servicer address city**:
+      ${ servicer_address_city }
+  - Edit: servicer_address_state
+    button: |
+      **Servicer address state**:
+      ${ servicer_address_state }
+  - Edit: servicer_address_zip
+    button: |
+      **Servicer address zip**:
+      ${ servicer_address_zip }
+  - Edit: servicer_phone_number
+    button: |
+      **Servicer phone number**:
+      ${ servicer_phone_number }
+  - Edit: bbo_number
+    button: |
+      **BBO number**:
+      ${ bbo_number }
+  - Edit: servicer_email
+    button: |
+      **Servicer email**:
+      ${ servicer_email }
+---
+id: edit_guardians
+continue button field: guardians.revisit
+question: |
+  Edit guardians
+subquestion: |
+  ${ guardians.table }
+
+  ${ guardians.add_action() }
+---
+table: guardians.table
+rows: guardians
+columns:
+  - Signature: |
+      row_item.signature if defined("row_item.signature") else ""
+  - Name: |
+      row_item.name_full() if defined("row_item.name.first") else ""
+  - Address: |
+      row_item.address.block() if defined("row_item.address.zip") else ""
+  - Phone number: |
+      row_item.phone_number if defined("row_item.phone_number") else ""
+  - Email: |
+      row_item.email if defined("row_item.email") else ""
+edit:
+  - signature
+  - name.first
+  - address.zip
+  - phone_number
+  - email
+confirm: True
+
+---
+id: download guardians_care_plan_report_mpc_821
+event: guardians_care_plan_report_mpc_821_download
+question: |
+  All done
+subquestion: |
+  Thank you ${users}. Your form is ready to download and deliver.
+  
+  View, download and send your form below. Click the "Edit answers" button to fix any mistakes.
+
+  ${ action_button_html(url_action('review_guardians_care_plan_report_mpc_821'), label='Edit answers', color='info') }
+  
+  
+  ${ al_user_bundle.download_list_html() }
+  
+
+  ${ al_user_bundle.send_button_html(show_editable_checkbox=False) }
+
+progress: 100
+---
+# ALDocument objects specify the metadata for each template
+objects:
+  - guardians_care_plan_report_mpc_821_Post_interview_instructions: ALDocument.using(title="Instructions", filename="guardians_care_plan_report_mpc_821_next_steps.docx", enabled=True, has_addendum=False)
+  - guardians_care_plan_report_mpc_821_attachment: ALDocument.using(title="Guardians care plan report", filename="guardians_care_plan_report_mpc_821", enabled=True, has_addendum=True, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
+---
+# Bundles group the ALDocuments into separate downloads, such as for court and for the user
+objects:
+  - al_user_bundle: ALDocumentBundle.using(elements=[guardians_care_plan_report_mpc_821_Post_interview_instructions, guardians_care_plan_report_mpc_821_attachment], filename="guardians_care_plan_report_mpc_821", title="All forms to download for your records", enabled=True)
+  - al_court_bundle: ALDocumentBundle.using(elements=[guardians_care_plan_report_mpc_821_attachment],  filename="guardians_care_plan_report_mpc_821", title="All forms to deliver to court", enabled=True)
+---
+# Each attachment defines a key in an ALDocument. We use `i` as the placeholder here so the same template is 
+# used for "preview" and "final" keys, and logic in the template checks the value of 
+# `i` to show or hide the user's signature
+attachment:
+  name: Post-interview-Instructions
+  filename: guardians_care_plan_report_mpc_821_next_steps
+  docx template file: guardians_care_plan_report_mpc_821_next_steps.docx
+  variable name: guardians_care_plan_report_mpc_821_Post_interview_instructions[i]
+  skip undefined: True
+  tagged pdf: True
+---
+attachment:
+  name: guardians care plan report mpc 821
+  filename: guardians_care_plan_report_mpc_821
+  variable name: guardians_care_plan_report_mpc_821_attachment[i]
+  skip undefined: True
+  pdf template file: guardians_care_plan_report_mpc_821.pdf
+  fields:
+      - "docket_number": ${ docket_number }
+      - "trial_court_division": ${ trial_court_division }
+      - "patient1_name_first": ${ patient1_name_first }
+      - "patient1_name_middleinitial": ${ patient1_name_middleinitial }
+      - "patient1_name_last": ${ patient1_name_last }
+      - "reporttype_60day": ${ report_type == "sixty_day" }
+      - "reporttype_annual": ${ report_type == "annual" }
+      - "reportperiod_beginning": ${ reportperiod_beginning.format() }
+      - "reportperiod_end": ${ reportperiod_end.format() }
+      - "relation_parent": ${ guardian_relationship == "parent" }
+      - "relation_child": ${ guardian_relationship == "child" }
+      - "relation_sibling": ${ guardian_relationship == "sibling" }
+      - "relation_familymember": ${ guardian_relationship == "family_member" }
+      - "relation_professional": ${ guardian_relationship == "professional" }
+      - "relation_professional_description": ${ relation_professional_description if guardian_relationship == "professional" else "" }
+      - "relation_other": ${ guardian_relationship == "other" }
+      - "relation_other_description": ${ relation_other_description if guardian_relationship == "other" else "" }
+      - "patient1_address_on_one_line": ${ patient1_address_on_one_line }
+      - "patient_housing_private": ${ housing_type == "private" }
+      - "patient_housing_foster": ${ housing_type == "foster" }
+      - "patient_housing_group": ${ housing_type == "group" }
+      - "patient_housing_nursing": ${ housing_type == "nursing" }
+      - "patient_housing_hospital": ${ housing_type == "hospital" }
+      - "patient_housing_assisted_living": ${ housing_type == "assisted_living" }
+      - "patient_housing_other": ${ housing_type == "other" }
+      - "patient_housing_other_description": ${ patient_housing_other_description if housing_type == "other" else "" }
+      - "is_housing_yes": ${ is_housing }
+      - "is_housing_no": ${ not is_housing }
+      - "other_patient_address_on_one_line": ${ other_patient_address_on_one_line if is_housing else "" }
+      - "other_patient_address_explanation": ${ other_patient_address_explanation if is_housing else "" }
+      - "is_having_visitors_yes": ${ is_having_visitors }
+      - "is_having_visitors_no": ${ not is_having_visitors }
+      - "is_making_calls_yes": ${ is_making_calls }
+      - "is_making_calls_no": ${ not is_making_calls }
+      - "is_mailing_yes": ${ is_mailing }
+      - "is_mailing_no": ${ not is_mailing }
+      - "is_participating_yes": ${ is_participating }
+      - "is_participating_no": ${ not is_participating }
+      - "patient_restricted_living_explanation": ${ guardians_care_plan_report_mpc_821_attachment.safe_value("patient_restricted_living_explanation") }
+      - "patient_mental_excellent": ${ patient_mental_condition == "excellent" }
+      - "patient_mental_good": ${ patient_mental_condition == "good" }
+      - "patient_mental_fair": ${ patient_mental_condition == "fair" }
+      - "patient_mental_poor": ${ patient_mental_condition == "poor" }
+      - "patient_physical_excellent": ${ patient_physical_condition == "excellent" }
+      - "patient_physical_good": ${ patient_physical_condition == "good" }
+      - "patient_physical_fair": ${ patient_physical_condition == "fair" }
+      - "patient_physical_poor": ${ patient_physical_condition == "poor" }
+      - "patient_social_excellent": ${ patient_social_condition == "excellent" }
+      - "patient_social_good": ${ patient_social_condition == "good" }
+      - "patient_social_fair": ${ patient_social_condition == "fair" }
+      - "patient_social_poor": ${ patient_social_condition == "poor" }
+      - "patient_overall_condition_explanation": ${ guardians_care_plan_report_mpc_821_attachment.safe_value("patient_overall_condition_explanation") }
+      - "patient_services_list": ${ patient_services_list }
+      - "patient_medical_services_excellent": ${ medical_services_rating == "excellent" }
+      - "patient_medical_services_good": ${ medical_services_rating == "good" }
+      - "patient_medical_services_fair": ${ medical_services_rating == "fair" }
+      - "patient_medical_services_poor": ${ medical_services_rating == "poor" }
+      - "patient_education_list": ${ patient_education_list }
+      - "patient_education_excellent": ${ education_services_rating == "excellent" }
+      - "patient_education_good": ${ education_services_rating == "good" }
+      - "patient_education_fair": ${ education_services_rating == "fair" }
+      - "patient_education_poor": ${ education_services_rating == "poor" }
+      - "patient_education_none": ${ education_services_rating == "none" }
+      - "patient_vocational_list": ${ patient_education_list }
+      - "patient_vocational_excellent": ${ education_services_rating == "excellent" }
+      - "patient_vocational_good": ${ education_services_rating == "good" }
+      - "patient_vocational_fair": ${ education_services_rating == "fair" }
+      - "patient_vocational_poor": ${ education_services_rating == "poor" }
+      - "patient_vocational_none": ${ education_services_rating == "none" }
+      - "patient_other_services_list": ${ patient_other_services_list }
+      - "patient_other_services_excellent": ${ other_services_rating == "excellent" }
+      - "patient_other_services_good": ${ other_services_rating == "good" }
+      - "patient_other_services_fair": ${ other_services_rating == "fair" }
+      - "patient_other_services_poor": ${ other_services_rating == "poor" }
+      - "contact_freq_daily": ${ contact_frequency == "daily" }
+      - "contact_freq_weekly": ${ contact_frequency == "weekly" }
+      - "contact_freq_monthly": ${ contact_frequency == "monthly" }
+      - "contact_freq_quarterly": ${ contact_frequency == "quarterly" }
+      - "contact_freq_never": ${ contact_frequency == "never" }
+      - "contact_freq_other": ${ contact_frequency == "other" }
+      - "contact_freq_other_explanation": ${ contact_freq_other_explanation if contact_frequency == "other" else "" }
+      - "if_decision_making_yes": ${ if_decision_making }
+      - "if_decision_making_no": ${ not if_decision_making }
+      - "decision_making_medical": ${ decision_making_areas.get("medical", False) }
+      - "decision_making_meals": ${ decision_making_areas.get("meals", False) }
+      - "decision_making_extracurriculars": ${ decision_making_areas.get("extracurriculars", False) }
+      - "decision_making_clothes": ${ decision_making_areas.get("clothes", False) }
+      - "decision_making_other": ${ decision_making_areas.get("other", False) }
+      - "decision_making_other_explanation": ${ decision_making_other_explanation if decision_making_areas.get("other", False) else "" }
+      - "summary_interaction_explanation": ${ guardians_care_plan_report_mpc_821_attachment.safe_value("summary_interaction_explanation") }
+      - "is_acute_medical_yes": ${ is_acute_medical }
+      - "is_acute_medical_no": ${ not is_acute_medical }
+      - "acute_medical_location": ${ acute_medical_location if is_acute_medical else "" }
+      - "acute_medical_best_yes": ${ acute_medical_best }
+      - "acute_medical_best_no": ${ not acute_medical_best }
+      - "future_plans_explanation": ${ guardians_care_plan_report_mpc_821_attachment.safe_value("future_plans_explanation") }
+      - "should_guardianship_continue_change_explanation": ${ guardians_care_plan_report_mpc_821_attachment.safe_value("should_guardianship_continue_change_explanation") }
+      - "is_crime_abuse_neglect_yes": ${ is_crime_abuse_neglect_yes }
+      - "crime_abuse_neglect_explanation": ${ crime_abuse_neglect_explanation if is_crime_abuse_neglect_yes else "" }
+      - "is_fiduciary_yes": ${ is_fiduciary }
+      - "is_fiduciary_no": ${ not is_fiduciary }
+      - "fiduciary_type_rep_payee": ${ fiduciary_types.get("rep_payee", False) }
+      - "fiduciary_type_conservator": ${ fiduciary_types.get("conservator", False) }
+      - "fiduciary_type_attorney": ${ fiduciary_types.get("attorney", False) }
+      - "fiduciary_type_able_account": ${ fiduciary_types.get("able_account", False) }
+      - "fiduciary_type_trustee": ${ fiduciary_types.get("trustee", False) }
+      - "fiduciary_type_other": ${ fiduciary_types.get("other", False) }
+      - "fiduciary_type_other_explanation": ${ fiduciary_type_other_explanation if fiduciary_types.get("other", False) else "" }
+      - "guardian1_signature": ${ guardians[0].signature_if_final(i) }
+      - "guardian2_signature": ${ guardians[1].signature_if_final(i) if len(guardians) > 1 else "" }
+      - "guardian1_name_full": ${ guardians[0] }
+      - "guardian2_name_full": ${ guardians[1] if len(guardians) > 1 else "" }
+      - "guardian1_address_address": ${ guardians[0].address.address }
+      - "guardian2_address_address": ${ guardians[1].address.address if len(guardians) > 1 else "" }
+      - "guardian1_address_unit": ${ guardians[0].address.unit }
+      - "guardian2_address_unit": ${ guardians[1].address.unit if len(guardians) > 1 else "" }
+      - "guardian1_address_city": ${ guardians[0].address.city }
+      - "guardian1_address_state": ${ guardians[0].address.state }
+      - "guardian1_address_zip": ${ guardians[0].address.zip }
+      - "guardian2_address_city": ${ guardians[1].address.city if len(guardians) > 1 else "" }
+      - "guardian2_address_state": ${ guardians[1].address.state if len(guardians) > 1 else "" }
+      - "guardian2_address_zip": ${ guardians[1].address.zip if len(guardians) > 1 else "" }
+      - "is_guardian1_address_update": ${ is_guardian1_address_update }
+      - "is_guardian2_address_update": ${ is_guardian2_address_update if len(guardians) > 1 else False }
+      - "guardian1_phone_number": ${ guardians[0].phone_number }
+      - "guardian2_phone_number": ${ guardians[1].phone_number if len(guardians) > 1 else "" }
+      - "guardian1_email": ${ guardians[0].email }
+      - "guardian2_email": ${ guardians[1].email if len(guardians) > 1 else "" }
+      - "guardian1_signature_date": ${ guardian1_signature_date.format() }
+      - "guardian2_signature_date": ${ guardian2_signature_date.format() if len(guardians) > 1 else "" }
+      - "servicer_signature_date": ${ servicer_signature_date.format() }
+      - "is_adult_submission_method_hand": ${ is_adult_submission_method_hand }
+      - "is_adult_submission_method_mail": ${ is_adult_submission_method_mail }
+      - "is_attorney_submission_method_hand": ${ is_attorney_submission_method_hand }
+      - "is_attorney_submission_method_mail": ${ is_attorney_submission_method_mail }
+      - "is_attorney_submission_method_email": ${ is_attorney_submission_method_email }
+      - "by handing it to them_3": ${ by_handing_it_to_them_3 }
+      - "by mailing it to the address they provided to the court": ${ by_mailing_it_to_the_address_they_provided_to_the_court }
+      # It's a signature: test which file version this is; leave empty unless it's the final version)
+      - "servicer_signature": ${ servicer_signature if i == "final" else '' }
+      - "servicer_name_full": ${ servicer_name_full }
+      - "servicer_address_address": ${ servicer_address_address }
+      - "servicer_address_unit": ${ servicer_address_unit }
+      - "servicer_address_city": ${ servicer_address_city }
+      - "servicer_address_state": ${ servicer_address_state }
+      - "servicer_address_zip": ${ servicer_address_zip }
+      - "servicer_phone_number": ${ servicer_phone_number }
+      - "bbo_number": ${ bbo_number }
+      - "servicer_email": ${ servicer_email }
+---
+code: |
+   guardians_care_plan_report_mpc_821_attachment.overflow_fields[
+     "patient_restricted_living_explanation"
+   ].overflow_trigger = 204
+   guardians_care_plan_report_mpc_821_attachment.overflow_fields[
+     "patient_restricted_living_explanation"
+   ].label = "Patient restricted living explanation"
+   guardians_care_plan_report_mpc_821_attachment.overflow_fields[
+     "patient_overall_condition_explanation"
+   ].overflow_trigger = 216
+   guardians_care_plan_report_mpc_821_attachment.overflow_fields[
+     "patient_overall_condition_explanation"
+   ].label = "Patient overall condition explanation"
+   guardians_care_plan_report_mpc_821_attachment.overflow_fields[
+     "summary_interaction_explanation"
+   ].overflow_trigger = 270
+   guardians_care_plan_report_mpc_821_attachment.overflow_fields[
+     "summary_interaction_explanation"
+   ].label = "Summary interaction explanation"
+   guardians_care_plan_report_mpc_821_attachment.overflow_fields[
+     "future_plans_explanation"
+   ].overflow_trigger = 270
+   guardians_care_plan_report_mpc_821_attachment.overflow_fields[
+     "future_plans_explanation"
+   ].label = "Future plans explanation"
+   guardians_care_plan_report_mpc_821_attachment.overflow_fields[
+     "should_guardianship_continue_change_explanation"
+   ].overflow_trigger = 332
+   guardians_care_plan_report_mpc_821_attachment.overflow_fields[
+     "should_guardianship_continue_change_explanation"
+   ].label = "Should guardianship continue change explanation"
+   guardians_care_plan_report_mpc_821_attachment.overflow_fields.gathered = True
+---
+id: guardian_relationship
+question: |
+  What is your relationship to the adult?
+subquestion: |
+  Select the option that best describes your relationship to the person under guardianship.
+fields:
+  - Relationship: guardian_relationship
+    datatype: radio
+    choices:
+      - Parent: parent
+      - Child: child
+      - Sibling: sibling
+      - Other family member: family_member
+      - Professional: professional
+      - Other: other
+  - Describe your professional role: relation_professional_description
+    maxlength: 50
+    show if:
+      variable: guardian_relationship
+      is: professional
+  - Describe your relationship: relation_other_description
+    maxlength: 50
+    show if:
+      variable: guardian_relationship
+      is: other
+---
+id: current_address
+question: |
+  Where does the adult currently live?
+subquestion: |
+  Provide the adult's current address or residence location. If they are homeless, write "unhoused."
+fields:
+  - Current address: patient1_address_on_one_line
+    maxlength: 69
+---
+id: living_arrangement
+question: |
+  What type of living arrangement does the adult have?
+subquestion: |
+  Select the option that best describes where the adult currently lives.
+fields:
+  - Living arrangement: housing_type
+    datatype: radio
+    choices:
+      - Private home: private
+      - Foster care: foster
+      - Group home: group
+      - Nursing facility: nursing
+      - Hospital or medical facility: hospital
+      - Assisted living facility: assisted_living
+      - Other type of facility: other
+  - Describe the facility: patient_housing_other_description
+    maxlength: 69
+    required: False
+    show if:
+      variable: housing_type
+      is: other
+---
+id: other_places_lived
+question: |
+  Did the adult live at any other address during this reporting period?
+subquestion: |
+  List any other places where the adult stayed or lived during the reporting period.
+fields:
+  - Did the adult live elsewhere?: is_housing
+    datatype: yesno
+  - Other address: other_patient_address_on_one_line
+    maxlength: 69
+    required: False
+    show if: is_housing
+  - Type of location: other_patient_address_explanation
+    maxlength: 66
+    required: False
+    show if: is_housing
+---
+id: living_restrictions
+question: |
+  Are there any restrictions on the adult's interactions?
+subquestion: |
+  Tell us if the adult is restricted from visitors, phone calls, mail, or taking part in activities.
+fields:
+  - Is the adult restricted from having visitors?: is_having_visitors
+    datatype: yesno
+  - Is the adult restricted from making phone calls?: is_making_calls
+    datatype: yesno
+  - Is the adult restricted from sending or receiving mail?: is_mailing
+    datatype: yesno
+  - Is the adult restricted from participating in activities?: is_participating
+    datatype: yesno
+  - Explain the reasons for these restrictions: patient_restricted_living_explanation
+    input type: area
+    required: False
+    show if:
+      code: |
+        is_having_visitors or is_making_calls or is_mailing or is_participating
+---
+id: mental_health_status
+question: |
+  How is the adult's mental health?
+subquestion: |
+  Rate the adult's overall mental and behavioral health during this reporting period. Include any significant improvements or declines.
+fields:
+  - Overall mental health: patient_mental_condition
+    datatype: radio
+    choices:
+      - Excellent: excellent
+      - Good: good
+      - Fair: fair
+      - Poor: poor
+  - Explanation: patient_overall_condition_explanation
+    input type: area
+    required: False
+help: |
+  **Mental health rating guide**
+
+  **Excellent:** Thinking is clear. Understands what is happening and can make decisions most of the time.
+
+  **Good:** Usually thinks clearly, but may have some confusion or memory problems at times.
+
+  **Fair:** Often has trouble with memory, understanding, or making decisions. Needs regular help.
+
+  **Poor:** Very confused most of the time. Cannot make decisions without full support.
+  
+---
+id: physical_health_status
+question: |
+  How is the adult's physical health?
+subquestion: |
+  Rate the adult's overall physical health. Include any medical conditions, treatments, and significant changes during this reporting period.
+fields:
+  - Overall physical health: patient_physical_condition
+    datatype: radio
+    choices:
+      - Excellent: excellent
+      - Good: good
+      - Fair: fair
+      - Poor: poor
+help: |
+  **Physical health rating guide**
+
+  **Excellent:** Very good health. Can move around and take care of daily needs without help.
+
+  **Good:** Some health issues, but mostly able to care for self. May need a little help.
+
+  **Fair:** Ongoing health problems. Needs regular help with daily tasks.
+
+  **Poor:** Serious health problems. Depends on others for most or all daily care.
+---
+id: social_health_status
+question: |
+  How is the adult's social health?
+subquestion: |
+  Rate the adult's social and emotional health. Consider their interactions with others, activities, and any changes in relationships or engagement.
+fields:
+  - Overall social health: patient_social_condition
+    datatype: radio
+    choices:
+      - Excellent: excellent
+      - Good: good
+      - Fair: fair
+      - Poor: poor
+help: |
+  **Social health rating guide**
+
+  **Excellent:** Has regular contact with family, friends, or community and takes part in activities.
+
+  **Good:** Has some social contact and participates in activities sometimes.
+
+  **Fair:** Has limited contact with others and may feel lonely at times.
+
+  **Poor:** Has little to no social contact and is mostly isolated.
 ---
 id: medical_services
 question: |
