@@ -49,15 +49,14 @@ metadata:
   approved_by:
     - name: Suffolk University Law School Clinical Programs
       url: https://suffolklitlab.org
-      logo: https://suffolklitlab.org/sites/default/files/2024-02/SuffolkLITLab%20logo%20-%20horizontal.png
   maturity: production
   estimated_completion_minutes: 25
   estimated_completion_delta: 10
   languages:
     - en
-  help_page_url: https://www.mass.gov/info-details/guardianship-faqs
+  help_page_url: https://www.mass.gov/info-details/probate-and-family-court-guardians-care-plan-report-mpc-821
   help_page_title: Massachusetts Guardianship Information
-  original_form: https://www.mass.gov/forms/mpc-821-report-on-the-condition-and-account-of-guardiansas-ward
+  original_form: https://www.mass.gov/doc/guardians-care-plan-report-mpc-821/download
   original_form_published_on: "2015-01-01"
   jurisdiction: NAM-US-US+MA
   LIST_topics:
@@ -207,7 +206,7 @@ subquestion: |
   
   **After you finish, you will:**
   
-  - Review your answers
+  - Check your answers
   - Sign the form under penalties of perjury
   - Print or download your completed report
   - File it with the Probate and Family Court
@@ -237,27 +236,27 @@ fields:
   - Trial court division: trial_court_division
     input type: dropdown
     choices:
-      - Boston
-      - Barnstable
-      - Berkshire
-      - Bristol
-      - Dukes
-      - Essex
-      - Franklin
-      - Hampden
-      - Hampshire
-      - Middlesex
-      - Nantucket
-      - Norfolk
-      - Plymouth
-      - Suffolk
-      - Worcester
+      - Boston: Boston
+      - Barnstable: Barnstable
+      - Berkshire: Berkshire
+      - Bristol: Bristol
+      - Dukes: Dukes
+      - Essex: Essex
+      - Franklin: Franklin
+      - Hampden: Hampden
+      - Hampshire: Hampshire
+      - Middlesex: Middlesex
+      - Nantucket: Nantucket
+      - Norfolk: Norfolk
+      - Plymouth: Plymouth
+      - Suffolk: Suffolk
+      - Worcester: Worcester
 ---
 id: report_type_and_period
 question: |
   What type of report are you filing?
 subquestion: |
-  Indicate whether this is a 60-day report or annual report.
+  Choose whether this is a 60-day report or annual report.
 fields:
   - Report type: report_type
     datatype: radio
@@ -269,7 +268,7 @@ id: reporting_dates
 question: |
   What dates does this report cover?
 subquestion: |
-  Provide the start and end dates of the reporting period this report covers.
+  Enter the start and end dates of the reporting period.
 fields:
   - Reporting period begins: reportperiod_beginning
     datatype: date
@@ -280,7 +279,7 @@ id: guardian_relationship
 question: |
   What is your relationship to the adult?
 subquestion: |
-  Select the option that best describes your relationship to the person under guardianship.
+  Choose the choice that best describes your relationship to the person under guardianship.
 fields:
   - Relationship: guardian_relationship
     datatype: radio
@@ -304,9 +303,9 @@ fields:
 ---
 id: current_address
 question: |
-  Where does the adult currently live?
+  Where does the adult live now?
 subquestion: |
-  Provide the adult's current address or residence location. If they are homeless, write "unhoused."
+  Enter the adult's current home address. If they are unhoused, write "unhoused."
 fields:
   - Current address: patient1_address_on_one_line
     maxlength: 69
@@ -315,7 +314,7 @@ id: living_arrangement
 question: |
   What type of living arrangement does the adult have?
 subquestion: |
-  Select the option that best describes where the adult currently lives.
+  Choose where the adult lives now.
 fields:
   - Living arrangement: housing_type
     datatype: radio
@@ -368,9 +367,6 @@ fields:
   - Explain the reasons for these restrictions: patient_restricted_living_explanation
     input type: area
     required: False
-    show if:
-      code: |
-        is_having_visitors or is_making_calls or is_mailing or is_participating
 ---
 id: mental_health_status
 question: |
@@ -442,7 +438,7 @@ help: |
 
   **Excellent:** Has regular contact with family, friends, or community and takes part in activities.
 
-  **Good:** Has some social contact and participates in activities sometimes.
+  **Good:** Has some social contact and takes part in activities sometimes.
 
   **Fair:** Has limited contact with others and may feel lonely at times.
 
@@ -452,11 +448,11 @@ id: medical_services
 question: |
   What medical services does the adult receive?
 subquestion: |
-  List the types of medical services. Examples include visits with a primary care provider, specialists, dentist, or other healthcare providers. Rate the adequacy of these services.
+  List the types of medical services. Examples include visits with a primary care provider, specialists, or dentist. Rate how well these services meet the adult's needs.
 fields:
   - Type of medical services: patient_services_list
     maxlength: 74
-  - How adequate are these services?: medical_services_rating
+  - How well do these services meet the adult's needs?: medical_services_rating
     datatype: radio
     choices:
       - Excellent: excellent
@@ -473,7 +469,7 @@ fields:
   - Type of educational/vocational services: patient_education_list
     maxlength: 71
     required: False
-  - How adequate are these services?: education_services_rating
+  - How well do these services meet the adult's needs?: education_services_rating
     datatype: radio
     choices:
       - Excellent: excellent
@@ -486,11 +482,11 @@ id: other_services
 question: |
   What other services does the adult receive?
 subquestion: |
-  List any additional services such as meal delivery, housekeeping, transportation, recreation, or other support. Rate the adequacy of these services.
+  List any other services such as meal delivery, housekeeping, transportation, or recreation. Rate how well these services meet the adult's needs.
 fields:
   - Type of other services: patient_other_services_list
     maxlength: 75
-  - How adequate are these services?: other_services_rating
+  - How well do these services meet the adult's needs?: other_services_rating
     datatype: radio
     choices:
       - Excellent: excellent
@@ -502,7 +498,7 @@ id: contact_with_adult
 question: |
   How often did you have contact with the adult during this reporting period?
 subquestion: |
-  Select the option that best represents your typical contact with the adult.
+  Choose the type that best describes your typical contact with the adult.
 fields:
   - Contact frequency: contact_frequency
     datatype: radio
@@ -522,18 +518,18 @@ fields:
 ---
 id: decision_making_participation
 question: |
-  Did the adult participate in decision-making?
+  Did the adult take part in making decisions?
 subquestion: |
   Massachusetts law requires guardians to encourage the adult to take part in decisions affecting their life. Tell the court how much the adult took part.
 fields:
-  - Did the adult participate in any decision-making?: if_decision_making
+  - Did the adult take part in any decision-making?: if_decision_making
     datatype: yesnoradio
 ---
 id: what_decisions
 question: |
-  Which of these decisions did the adult participate in?
+  Which of these decisions did the adult take part in?
 subquestion: |
-  Select all that apply. Include any other areas where the adult participated.
+  Choose all that apply. Include any other areas where the adult took part.
 fields:
   - Decisions: decision_making_areas
     datatype: checkboxes
@@ -551,7 +547,7 @@ fields:
 ---
 id: healthcare_provider_interaction
 question: |
-  Tell us about your contact with the adult's healthcare providers
+  Tell us about your contact with the adult's healthcare providers.
 subquestion: |
   Share a summary of how you've worked with the adult's doctors and healthcare team. Include details about communication and the quality of care.
 fields:
@@ -586,7 +582,7 @@ id: guardianship_continuation
 question: |
   Should the guardianship continue or change?
 subquestion: |
-  Tell the court whether you think the guardianship should continue. If you recommend changes to your legal authority, explain them. Note: You must file a petition with the court to make any official changes.
+  Tell the court whether you think the guardianship should continue. If you think your legal rights as guardian should change, explain why. Note: You must file a petition with the court to make any official changes.
 fields:
   - Your recommendations: should_guardianship_continue_change_explanation
     input type: area
@@ -595,11 +591,11 @@ id: crime_abuse_reports
 question: |
   Have there been any criminal charges, abuse reports, or neglect reports?
 subquestion: |
-  Tell the court about any involvement with law enforcement, the Disabled Persons Protection Commission, adult protective services, or any government agency investigation involving you or the adult. Include all charges, complaints, or reports even if they were not proven.
+  Tell the court about any contact with law enforcement, the DPPC (Disabled Persons Protection Commission), or adult protective services. Include all charges, complaints, or reports, even if they were not proven.
 fields:
   - Were there any such incidents?: is_crime_abuse_neglect_yes
     datatype: yesnoradio
-  - Provide details: crime_abuse_neglect_explanation
+  - Give details: crime_abuse_neglect_explanation
     maxlength: 90
     show if: is_crime_abuse_neglect_yes
 ---
@@ -614,11 +610,11 @@ fields:
 ---
 id: fiduciary_role
 question: |
-  What role gives you authority to hold the adult's funds?
+  What legal right do you have to hold the adult's funds?
 subquestion: |
-  Select all that apply. If none apply, explain why you have legal authority to hold the funds.
+  Choose all that apply. If none apply, explain why you have the legal right to hold the funds.
 fields:
-  - Financial authority: fiduciary_types
+  - Financial role: fiduciary_types
     datatype: checkboxes
     choices:
       - Representative payee for Social Security benefits: rep_payee
@@ -626,7 +622,7 @@ fields:
       - Power of attorney: attorney
       - ABLE account holder: able_account
       - Trustee of a trust: trustee
-      - Other authority: other
+      - Other role: other
     none of the above: False
   - Explain your role: fiduciary_type_other_explanation
     maxlength: 90
@@ -637,7 +633,7 @@ id: Guardian 1 Signature
 question: |
   Guardian 1 information
 subquestion: |
-  Confirm whether Guardian 1's address has changed and enter the date Guardian 1 signed this report.
+  Confirm whether Guardian 1's address has changed and enter the date Guardian 1 signed this form.
 fields:
   - "Is guardian1 address update": is_guardian1_address_update
     datatype: yesno
@@ -648,7 +644,7 @@ id: Guardian 2 Signature
 question: |
   Guardian 2 information
 subquestion: |
-  If there is a second guardian, confirm whether their address has changed and enter the date they signed this report.
+  If a second guardian is listed, confirm whether their address has changed and enter the date they signed this form.
 fields:
   - "Is guardian2 address update": is_guardian2_address_update
     datatype: yesno
@@ -659,7 +655,7 @@ id: certificate of service preamble
 question: |
   Certificate of service
 subquestion: |
-  Enter the date you served the report and how copies were delivered to required recipients.
+  Enter the date you served the form and how copies were delivered to required recipients.
 fields:
   - "Date of servicer signature": servicer_signature_date
     datatype: date
@@ -727,7 +723,7 @@ id: servicer_signature_screen
 question: |
   Your signature
 subquestion: |
-  Sign below to certify that you have provided true and accurate information under the penalties of perjury.
+  Sign below to confirm that all information you provided is true. You sign under the penalties of perjury.
 signature: servicer_signature
 ---
 code: |
@@ -740,7 +736,7 @@ code: |
 id: guardians care plan report mpc 821 review screen
 event: review_guardians_care_plan_report_mpc_821
 question: |
-  Review your answers
+  Check your answers
 review:
   - Edit: docket_number
     button: |
@@ -1303,7 +1299,7 @@ id: guardian_relationship
 question: |
   What is your relationship to the adult?
 subquestion: |
-  Select the option that best describes your relationship to the person under guardianship.
+  Choose the choice that best describes your relationship to the person under guardianship.
 fields:
   - Relationship: guardian_relationship
     datatype: radio
@@ -1327,9 +1323,9 @@ fields:
 ---
 id: current_address
 question: |
-  Where does the adult currently live?
+  Where does the adult live now?
 subquestion: |
-  Provide the adult's current address or residence location. If they are homeless, write "unhoused."
+  Enter the adult's current home address. If they are unhoused, write "unhoused."
 fields:
   - Current address: patient1_address_on_one_line
     maxlength: 69
@@ -1338,7 +1334,7 @@ id: living_arrangement
 question: |
   What type of living arrangement does the adult have?
 subquestion: |
-  Select the option that best describes where the adult currently lives.
+  Choose where the adult lives now.
 fields:
   - Living arrangement: housing_type
     datatype: radio
@@ -1391,9 +1387,6 @@ fields:
   - Explain the reasons for these restrictions: patient_restricted_living_explanation
     input type: area
     required: False
-    show if:
-      code: |
-        is_having_visitors or is_making_calls or is_mailing or is_participating
 ---
 id: mental_health_status
 question: |
@@ -1465,7 +1458,7 @@ help: |
 
   **Excellent:** Has regular contact with family, friends, or community and takes part in activities.
 
-  **Good:** Has some social contact and participates in activities sometimes.
+  **Good:** Has some social contact and takes part in activities sometimes.
 
   **Fair:** Has limited contact with others and may feel lonely at times.
 
@@ -1475,11 +1468,11 @@ id: medical_services
 question: |
   What medical services does the adult receive?
 subquestion: |
-  List the types of medical services. Examples include visits with a primary care provider, specialists, dentist, or other healthcare providers. Rate the adequacy of these services.
+  List the types of medical services. Examples include visits with a primary care provider, specialists, or dentist. Rate how well these services meet the adult's needs.
 fields:
   - Type of medical services: patient_services_list
     maxlength: 74
-  - How adequate are these services?: medical_services_rating
+  - How well do these services meet the adult's needs?: medical_services_rating
     datatype: radio
     choices:
       - Excellent: excellent
@@ -1496,7 +1489,7 @@ fields:
   - Type of educational/vocational services: patient_education_list
     maxlength: 71
     required: False
-  - How adequate are these services?: education_services_rating
+  - How well do these services meet the adult's needs?: education_services_rating
     datatype: radio
     choices:
       - Excellent: excellent
@@ -1509,11 +1502,11 @@ id: other_services
 question: |
   What other services does the adult receive?
 subquestion: |
-  List any additional services such as meal delivery, housekeeping, transportation, recreation, or other support. Rate the adequacy of these services.
+  List any other services such as meal delivery, housekeeping, transportation, or recreation. Rate how well these services meet the adult's needs.
 fields:
   - Type of other services: patient_other_services_list
     maxlength: 75
-  - How adequate are these services?: other_services_rating
+  - How well do these services meet the adult's needs?: other_services_rating
     datatype: radio
     choices:
       - Excellent: excellent
@@ -1525,7 +1518,7 @@ id: contact_with_adult
 question: |
   How often did you have contact with the adult during this reporting period?
 subquestion: |
-  Select the option that best represents your typical contact with the adult.
+  Choose the type that best describes your typical contact with the adult.
 fields:
   - Contact frequency: contact_frequency
     datatype: radio
@@ -1545,18 +1538,18 @@ fields:
 ---
 id: decision_making_participation
 question: |
-  Did the adult participate in decision-making?
+  Did the adult take part in making decisions?
 subquestion: |
   Massachusetts law requires guardians to encourage the adult to take part in decisions affecting their life. Tell the court how much the adult took part.
 fields:
-  - Did the adult participate in any decision-making?: if_decision_making
+  - Did the adult take part in any decision-making?: if_decision_making
     datatype: yesnoradio
 ---
 id: what_decisions
 question: |
-  Which of these decisions did the adult participate in?
+  Which of these decisions did the adult take part in?
 subquestion: |
-  Select all that apply. Include any other areas where the adult participated.
+  Choose all that apply. Include any other areas where the adult took part.
 fields:
   - Decisions: decision_making_areas
     datatype: checkboxes
@@ -1574,7 +1567,7 @@ fields:
 ---
 id: healthcare_provider_interaction
 question: |
-  Tell us about your contact with the adult's healthcare providers
+  Tell us about your contact with the adult's healthcare providers.
 subquestion: |
   Share a summary of how you've worked with the adult's doctors and healthcare team. Include details about communication and the quality of care.
 fields:
@@ -1609,7 +1602,7 @@ id: guardianship_continuation
 question: |
   Should the guardianship continue or change?
 subquestion: |
-  Tell the court whether you think the guardianship should continue. If you recommend changes to your legal authority, explain them. Note: You must file a petition with the court to make any official changes.
+  Tell the court whether you think the guardianship should continue. If you think your legal rights as guardian should change, explain why. Note: You must file a petition with the court to make any official changes.
 fields:
   - Your recommendations: should_guardianship_continue_change_explanation
     input type: area
@@ -1618,11 +1611,11 @@ id: crime_abuse_reports
 question: |
   Have there been any criminal charges, abuse reports, or neglect reports?
 subquestion: |
-  Tell the court about any involvement with law enforcement, the Disabled Persons Protection Commission, adult protective services, or any government agency investigation involving you or the adult. Include all charges, complaints, or reports even if they were not proven.
+  Tell the court about any contact with law enforcement, the DPPC (Disabled Persons Protection Commission), or adult protective services. Include all charges, complaints, or reports, even if they were not proven.
 fields:
   - Were there any such incidents?: is_crime_abuse_neglect_yes
     datatype: yesnoradio
-  - Provide details: crime_abuse_neglect_explanation
+  - Give details: crime_abuse_neglect_explanation
     maxlength: 90
     show if: is_crime_abuse_neglect_yes
 ---
@@ -1637,11 +1630,11 @@ fields:
 ---
 id: fiduciary_role
 question: |
-  What role gives you authority to hold the adult's funds?
+  What legal right do you have to hold the adult's funds?
 subquestion: |
-  Select all that apply. If none apply, explain why you have legal authority to hold the funds.
+  Choose all that apply. If none apply, explain why you have the legal right to hold the funds.
 fields:
-  - Financial authority: fiduciary_types
+  - Financial role: fiduciary_types
     datatype: checkboxes
     choices:
       - Representative payee for Social Security benefits: rep_payee
@@ -1649,7 +1642,7 @@ fields:
       - Power of attorney: attorney
       - ABLE account holder: able_account
       - Trustee of a trust: trustee
-      - Other authority: other
+      - Other role: other
     none of the above: False
   - Explain your role: fiduciary_type_other_explanation
     maxlength: 90
@@ -1660,7 +1653,7 @@ id: Guardian 1 Signature
 question: |
   Guardian 1 information
 subquestion: |
-  Confirm whether Guardian 1's address has changed and enter the date Guardian 1 signed this report.
+  Confirm whether Guardian 1's address has changed and enter the date Guardian 1 signed this form.
 fields:
   - "Is guardian1 address update": is_guardian1_address_update
     datatype: yesno
@@ -1671,7 +1664,7 @@ id: Guardian 2 Signature
 question: |
   Guardian 2 information
 subquestion: |
-  If there is a second guardian, confirm whether their address has changed and enter the date they signed this report.
+  If a second guardian is listed, confirm whether their address has changed and enter the date they signed this form.
 fields:
   - "Is guardian2 address update": is_guardian2_address_update
     datatype: yesno
@@ -1682,7 +1675,7 @@ id: certificate of service preamble
 question: |
   Certificate of service
 subquestion: |
-  Enter the date you served the report and how copies were delivered to required recipients.
+  Enter the date you served the form and how copies were delivered to required recipients.
 fields:
   - "Date of servicer signature": servicer_signature_date
     datatype: date
@@ -1750,7 +1743,7 @@ id: servicer_signature_screen
 question: |
   Your signature
 subquestion: |
-  Sign below to certify that you have provided true and accurate information under the penalties of perjury.
+  Sign below to confirm that all information you provided is true. You sign under the penalties of perjury.
 signature: servicer_signature
 ---
 code: |
@@ -1763,7 +1756,7 @@ code: |
 id: guardians care plan report mpc 821 review screen
 event: review_guardians_care_plan_report_mpc_821
 question: |
-  Review your answers
+  Check your answers
 review:
   - Edit: docket_number
     button: |
