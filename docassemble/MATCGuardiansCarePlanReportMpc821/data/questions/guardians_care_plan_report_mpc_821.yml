@@ -1,7 +1,3 @@
-
-
-
----
 include:
   - docassemble.AssemblyLine:assembly_line.yml
   - docassemble.ALMassachusetts:al_massachusetts.yml
@@ -9,11 +5,13 @@ include:
 ---
 metadata:
   title: |
-    Guardian's Care Plan Report (MPC 821)
+    Guardian's Care Plan Report
   short title: |
     Guardian's Care Plan Report
   description: |-
-    This interview helps a guardian in Massachusetts prepare and file an annual Guardian's Care Plan Report (MPC 821) with the Probate and Family Court. The form reports on the adult's living situation, health status, services received, and the guardian's contact with the adult during the reporting period.
+    This interview helps a Massachusetts guardian fill out and file the Guardian's Care Plan Report (MPC 821) in the Probate and Family Court. The form asks about the adult's living situation, health, services, and your contact with the adult during the reporting period.
+
+    Most guardians must file this report 60 days after the initial report, and then once a year. Check with your court to find out which reports you need to file and when they are due.
   can_I_use_this_form: |
     You can use this form if:
     
@@ -26,7 +24,7 @@ metadata:
     Before you start, you need to gather:
     
     * Details about the adult's living arrangement (home, foster care, facility, etc.)
-    * Information about services the adult receives (medical, educational, vocational, other)
+    * Information about the services and support the adult gets, like medical care, education, job training, and other help
     * Details about your contact with the adult during the reporting period
     * Information about the adult's mental, physical, and social health status
     * Any recent hospitalizations or medical facility admissions
@@ -57,7 +55,7 @@ metadata:
   help_page_url: https://www.mass.gov/info-details/probate-and-family-court-guardians-care-plan-report-mpc-821
   help_page_title: Massachusetts Guardianship Information
   original_form: https://www.mass.gov/doc/guardians-care-plan-report-mpc-821/download
-  original_form_published_on: "2015-01-01"
+  original_form_published_on: "2025-08-20"
   jurisdiction: NAM-US-US+MA
   LIST_topics:
     - ES-03-00-00-00
@@ -194,12 +192,12 @@ continue button field: guardians_care_plan_report_mpc_821_intro
 question: |
   Guardian's Care Plan Report
 subquestion: |
-  This interview will help you prepare and file your Guardian's Care Plan Report (Form MPC 821).
+  This interview helps you fill out and file Form MPC 821.
   
   **Before you get started, gather:**
   
   - Information about the adult's current living situation
-  - Details about the services and support the adult receives
+  - Details about the services and support the adult gets
   - Information about your contact with the adult during the reporting period
   - Any recent medical hospitalizations or facility admissions
   - Updates about the adult's mental, physical, and social health
@@ -210,7 +208,7 @@ subquestion: |
   - Sign the form under penalties of perjury
   - Print or download your completed report
   - File it with the Probate and Family Court
-  - Give a copy to the required people
+  - Give a copy to anyone who must get one
 
 
 ---
@@ -254,11 +252,11 @@ fields:
 ---
 id: report_type_and_period
 question: |
-  What type of report are you filing?
+  Which form are you filing?
 subquestion: |
-  Choose whether this is a 60-day report or annual report.
+  Choose the 60-day form or the annual form.
 fields:
-  - Report type: report_type
+  - Which form is this?: report_type
     datatype: radio
     choices:
       - 60-day report: sixty_day
@@ -266,13 +264,13 @@ fields:
 ---
 id: reporting_dates
 question: |
-  What dates does this report cover?
+  What dates does this filing cover?
 subquestion: |
   Enter the start and end dates of the reporting period.
 fields:
-  - Reporting period begins: reportperiod_beginning
+  - Start date: reportperiod_beginning
     datatype: date
-  - Reporting period ends: reportperiod_end
+  - End date: reportperiod_end
     datatype: date
 ---
 id: guardian_relationship
@@ -355,6 +353,8 @@ question: |
   Are there any restrictions on the adult's interactions?
 subquestion: |
   Tell us if the adult is restricted from visitors, phone calls, mail, or taking part in activities.
+
+  ${ collapse_template(living_restrictions_help_template) }
 fields:
   - Is the adult restricted from having visitors?: is_having_visitors
     datatype: yesno
@@ -373,6 +373,8 @@ question: |
   How is the adult's mental health?
 subquestion: |
   Rate the adult's overall mental and behavioral health during this reporting period. Include any significant improvements or declines.
+
+  ${ collapse_template(mental_health_rating_guide_template) }
 fields:
   - Overall mental health: patient_mental_condition
     datatype: radio
@@ -384,23 +386,14 @@ fields:
   - Explanation: patient_overall_condition_explanation
     input type: area
     required: False
-help: |
-  **Mental health rating guide**
-
-  **Excellent:** Thinking is clear. Understands what is happening and can make decisions most of the time.
-
-  **Good:** Usually thinks clearly, but may have some confusion or memory problems at times.
-
-  **Fair:** Often has trouble with memory, understanding, or making decisions. Needs regular help.
-
-  **Poor:** Very confused most of the time. Cannot make decisions without full support.
-  
 ---
 id: physical_health_status
 question: |
   How is the adult's physical health?
 subquestion: |
   Rate the adult's overall physical health. Include any medical conditions, treatments, and significant changes during this reporting period.
+
+  ${ collapse_template(physical_health_rating_guide_template) }
 fields:
   - Overall physical health: patient_physical_condition
     datatype: radio
@@ -409,22 +402,14 @@ fields:
       - Good: good
       - Fair: fair
       - Poor: poor
-help: |
-  **Physical health rating guide**
-
-  **Excellent:** Very good health. Can move around and take care of daily needs without help.
-
-  **Good:** Some health issues, but mostly able to care for self. May need a little help.
-
-  **Fair:** Ongoing health problems. Needs regular help with daily tasks.
-
-  **Poor:** Serious health problems. Depends on others for most or all daily care.
 ---
 id: social_health_status
 question: |
   How is the adult's social health?
 subquestion: |
   Rate the adult's social and emotional health. Consider their interactions with others, activities, and any changes in relationships or engagement.
+
+  ${ collapse_template(social_health_rating_guide_template) }
 fields:
   - Overall social health: patient_social_condition
     datatype: radio
@@ -433,22 +418,12 @@ fields:
       - Good: good
       - Fair: fair
       - Poor: poor
-help: |
-  **Social health rating guide**
-
-  **Excellent:** Has regular contact with family, friends, or community and takes part in activities.
-
-  **Good:** Has some social contact and takes part in activities sometimes.
-
-  **Fair:** Has limited contact with others and may feel lonely at times.
-
-  **Poor:** Has little to no social contact and is mostly isolated.
 ---
 id: medical_services
 question: |
-  What medical services does the adult receive?
+  What medical care does the adult get?
 subquestion: |
-  List the types of medical services. Examples include visits with a primary care provider, specialists, or dentist. Rate how well these services meet the adult's needs.
+  List the medical care the adult gets. Examples include visits with a primary care provider, specialists, or a dentist. Then say how well this care meets the adult's needs.
 fields:
   - Type of medical services: patient_services_list
     maxlength: 74
@@ -462,11 +437,11 @@ fields:
 ---
 id: educational_services
 question: |
-  What educational or vocational services does the adult receive?
+  What training services does the adult get?
 subquestion: |
-  List any educational programs, training, or vocational services. If the adult does not receive these services, check that box.
+  List any school programs, training, or job services. If the adult does not get these services, choose "Not receiving this service."
 fields:
-  - Type of educational/vocational services: patient_education_list
+  - Type of training services: patient_education_list
     maxlength: 71
     required: False
   - How well do these services meet the adult's needs?: education_services_rating
@@ -480,9 +455,9 @@ fields:
 ---
 id: other_services
 question: |
-  What other services does the adult receive?
+  What other help does the adult get?
 subquestion: |
-  List any other services such as meal delivery, housekeeping, transportation, or recreation. Rate how well these services meet the adult's needs.
+  List any other help, like meal delivery, housekeeping, transportation, or recreation. Then say how well this help meets the adult's needs.
 fields:
   - Type of other services: patient_other_services_list
     maxlength: 75
@@ -549,18 +524,18 @@ id: healthcare_provider_interaction
 question: |
   Tell us about your contact with the adult's healthcare providers.
 subquestion: |
-  Share a summary of how you've worked with the adult's doctors and healthcare team. Include details about communication and the quality of care.
+  Share a summary of how you have worked with the adult's doctors and healthcare team. Include details about communication and the quality of care.
 fields:
   - Summary of interactions: summary_interaction_explanation
     input type: area
 ---
 id: hospitalization_and_treatment
 question: |
-  Has the adult been hospitalized or admitted to a medical facility?
+  Has the adult been in a hospital or another medical facility?
 subquestion: |
-  Tell us about any hospital stays, facility admissions, or emergency room visits during this reporting period. If there were no such admissions, check "No."
+  Tell us about any hospital stays, other facility stays, or emergency room visits during this reporting period. If there were none, choose "No."
 fields:
-  - Was the adult hospitalized or admitted to a facility?: is_acute_medical
+  - Was the adult in a hospital or facility?: is_acute_medical
     datatype: yesnoradio
   - Describe the location and reason: acute_medical_location
     maxlength: 90
@@ -582,7 +557,7 @@ id: guardianship_continuation
 question: |
   Should the guardianship continue or change?
 subquestion: |
-  Tell the court whether you think the guardianship should continue. If you think your legal rights as guardian should change, explain why. Note: You must file a petition with the court to make any official changes.
+  Tell the court if the guardianship should stay the same. If you think your rights or duties as guardian should change, explain why. You must file a petition with the court to make an official change.
 fields:
   - Your recommendations: should_guardianship_continue_change_explanation
     input type: area
@@ -591,7 +566,7 @@ id: crime_abuse_reports
 question: |
   Have there been any criminal charges, abuse reports, or neglect reports?
 subquestion: |
-  Tell the court about any contact with law enforcement, the DPPC (Disabled Persons Protection Commission), or adult protective services. Include all charges, complaints, or reports, even if they were not proven.
+  Tell the court about any contact with law enforcement, the DPPC, or Adult Protective Services. Include any charges, complaints, or reports, even if they were not proven.
 fields:
   - Were there any such incidents?: is_crime_abuse_neglect_yes
     datatype: yesnoradio
@@ -601,11 +576,11 @@ fields:
 ---
 id: fiduciary_responsibility
 question: |
-  Do you hold or manage the adult's financial funds?
+  Do you manage any of the adult's money or property?
 subquestion: |
-  Check "Yes" if you receive or manage money that belongs to the adult. This includes Social Security benefits, inheritances, or other assets. If you also serve as conservator, you must file a separate Conservator's Account.
+  Choose "Yes" if you get or manage money that belongs to the adult. This includes Social Security benefits, inheritances, or other assets. If you also serve as conservator, you must file a separate Conservator's Account.
 fields:
-  - Do you hold financial funds for the adult?: is_fiduciary
+  - Do you manage money for the adult?: is_fiduciary
     datatype: yesnoradio
 ---
 id: fiduciary_role
@@ -633,70 +608,74 @@ id: Guardian 1 Signature
 question: |
   Guardian 1 information
 subquestion: |
-  Confirm whether Guardian 1's address has changed and enter the date Guardian 1 signed this form.
+  Confirm if Guardian 1's address has changed and enter the date Guardian 1 signed this form.
 fields:
-  - "Is guardian1 address update": is_guardian1_address_update
+  - "Has Guardian 1's address changed?": is_guardian1_address_update
     datatype: yesno
-  - "Date of guardian1 signature": guardian1_signature_date
+  - "Date Guardian 1 signed the form": guardian1_signature_date
     datatype: date
 ---
 id: Guardian 2 Signature
 question: |
   Guardian 2 information
 subquestion: |
-  If a second guardian is listed, confirm whether their address has changed and enter the date they signed this form.
+  If a second guardian is listed, confirm if their address has changed and enter the date they signed this form.
 fields:
-  - "Is guardian2 address update": is_guardian2_address_update
+  - "Has Guardian 2's address changed?": is_guardian2_address_update
     datatype: yesno
-  - "Date of guardian2 signature": guardian2_signature_date
+  - "Date Guardian 2 signed the form": guardian2_signature_date
     datatype: date
 ---
 id: certificate of service preamble
 question: |
   Certificate of service
 subquestion: |
-  Enter the date you served the form and how copies were delivered to required recipients.
+  Enter the date you gave out copies of the form. Then say how each required person got their copy.
+
+  ${ collapse_template(certificate_of_service_help_template) }
 fields:
-  - "Date of servicer signature": servicer_signature_date
+  - "Date copies were served": servicer_signature_date
     datatype: date
-  - "Is adult submission method hand": is_adult_submission_method_hand
+  - "Adult got a copy by hand": is_adult_submission_method_hand
     datatype: yesno
-  - "Is adult submission method mail": is_adult_submission_method_mail
+  - "Adult got a copy by mail": is_adult_submission_method_mail
     datatype: yesno
-  - "Is attorney submission method hand": is_attorney_submission_method_hand
+  - "Attorney got a copy by hand": is_attorney_submission_method_hand
     datatype: yesno
-  - "Is attorney submission method mail": is_attorney_submission_method_mail
+  - "Attorney got a copy by mail": is_attorney_submission_method_mail
     datatype: yesno
-  - "Is attorney submission method email": is_attorney_submission_method_email
+  - "Attorney got a copy by email": is_attorney_submission_method_email
     datatype: yesno
-  - "By handing it to them 3": by_handing_it_to_them_3
+  - "Another required person got a copy by hand": by_handing_it_to_them_3
     datatype: yesno
-  - "By mailing it to the address they provided to the court": by_mailing_it_to_the_address_they_provided_to_the_court
+  - "Another required person got a copy by mail": by_mailing_it_to_the_address_they_provided_to_the_court
     datatype: yesno
 ---
 id: Servicer Signature Close Out
 question: |
   Your contact information
 subquestion: |
-  Enter the contact information for the person who signs the certificate of service.
+  Enter contact information for the person who gave out or mailed the copies.
+
+  ${ collapse_template(servicer_contact_info_help_template) }
 fields:
-  - "Servicer name full": servicer_name_full
+  - "Full name of person who served the form": servicer_name_full
     maxlength: 48
-  - "Servicer address address": servicer_address_address
+  - "Street address": servicer_address_address
     maxlength: 35
-  - "Servicer address unit": servicer_address_unit
+  - "Unit": servicer_address_unit
     maxlength: 12
-  - "Servicer address city": servicer_address_city
+  - "City": servicer_address_city
     maxlength: 27
-  - "Servicer address state": servicer_address_state
+  - "State": servicer_address_state
     maxlength: 6
-  - "Servicer address zip": servicer_address_zip
+  - "ZIP code": servicer_address_zip
     maxlength: 12
-  - "Servicer phone number": servicer_phone_number
+  - "Phone number": servicer_phone_number
     maxlength: 35
-  - "BBO number": bbo_number
+  - "BBO number (if any)": bbo_number
     maxlength: 41
-  - "Servicer email": servicer_email
+  - "Email address": servicer_email
     maxlength: 41
 ---
 id: preview guardians_care_plan_report_mpc_821
@@ -707,12 +686,13 @@ subquestion: |
   
   ${ al_court_bundle.as_pdf(key='preview') }
 
-  Click the image to open it in a new tab. Click the "Edit answers" button
-  to edit your answers.
+  Open the image in a new tab if you want a larger view.
+
+  Use the "Edit answers" button to make changes.
 
   ${ action_button_html(url_action('review_guardians_care_plan_report_mpc_821'), label='Edit answers', color='info') }
   
-  Remember to come back to this window to continue and sign your form.
+  Return here when you are ready to sign.
 continue button field: guardians_care_plan_report_mpc_821_preview_question    
 ---
 code: |
@@ -723,7 +703,7 @@ id: servicer_signature_screen
 question: |
   Your signature
 subquestion: |
-  Sign below to confirm that all information you provided is true. You sign under the penalties of perjury.
+  Sign below to confirm that the information you entered is true. You are signing under the penalties of perjury.
 signature: servicer_signature
 ---
 code: |
@@ -752,15 +732,15 @@ review:
       ${ patient1_name_first } ${ patient1_name_middleinitial if patient1_name_middleinitial else '' } ${ patient1_name_last }
   - Edit: report_type
     button: |
-      **Report type**:
+      **Which form**:
       ${ report_type }
   - Edit: reportperiod_beginning
     button: |
-      **Reporting period begins**:
+      **Start date**:
       ${ reportperiod_beginning }
   - Edit: reportperiod_end
     button: |
-      **Reporting period ends**:
+      **End date**:
       ${ reportperiod_end }
   - Edit: guardian_relationship
     button: |
@@ -851,7 +831,7 @@ review:
       ${ medical_services_rating }
   - Edit: patient_education_list
     button: |
-      **Educational/vocational services**:
+      **Training services**:
       ${ patient_education_list }
   - Edit: education_services_rating
     button: |
@@ -963,7 +943,7 @@ review:
     show if: len(guardians) > 1
   - Edit: servicer_signature_date
     button: |
-      **Servicer signature date**:
+      **Date copies were served**:
       ${ servicer_signature_date }
   - Edit: is_adult_submission_method_hand
     button: |
@@ -987,43 +967,43 @@ review:
       ${ word(yesno(is_attorney_submission_method_email)) }
   - Edit: by_handing_it_to_them_3
     button: |
-      **By handing it to them 3**:
+      **Other person got a copy by hand**:
       ${ word(yesno(by_handing_it_to_them_3)) }
   - Edit: by_mailing_it_to_the_address_they_provided_to_the_court
     button: |
-      **By mailing it to the address they provided to the court**:
+      **Other person got a copy by mail**:
       ${ word(yesno(by_mailing_it_to_the_address_they_provided_to_the_court)) }
   - Edit: servicer_signature
     button: |
-      **servicer_signature**:
+      **Signature**:
       ${ servicer_signature }
   - Edit: servicer_name_full
     button: |
-      **Servicer name full**:
+      **Full name of person who served the form**:
       ${ servicer_name_full }
   - Edit: servicer_address_address
     button: |
-      **Servicer address address**:
+      **Street address**:
       ${ servicer_address_address }
   - Edit: servicer_address_unit
     button: |
-      **Servicer address unit**:
+      **Unit**:
       ${ servicer_address_unit }
   - Edit: servicer_address_city
     button: |
-      **Servicer address city**:
+      **City**:
       ${ servicer_address_city }
   - Edit: servicer_address_state
     button: |
-      **Servicer address state**:
+      **State**:
       ${ servicer_address_state }
   - Edit: servicer_address_zip
     button: |
-      **Servicer address zip**:
+      **ZIP code**:
       ${ servicer_address_zip }
   - Edit: servicer_phone_number
     button: |
-      **Servicer phone number**:
+      **Phone number**:
       ${ servicer_phone_number }
   - Edit: bbo_number
     button: |
@@ -1031,7 +1011,7 @@ review:
       ${ bbo_number }
   - Edit: servicer_email
     button: |
-      **Servicer email**:
+      **Email address**:
       ${ servicer_email }
 ---
 id: edit_guardians
@@ -1249,7 +1229,7 @@ attachment:
       - "is_attorney_submission_method_mail": ${ is_attorney_submission_method_mail }
       - "is_attorney_submission_method_email": ${ is_attorney_submission_method_email }
       - "by handing it to them_3": ${ by_handing_it_to_them_3 }
-      - "by mailing it to the address they provided to the court": ${ by_mailing_it_to_the_address_they_provided_to_the_court }
+      - "by mailing it to the address on file with the court": ${ by_mailing_it_to_the_address_they_provided_to_the_court }
       # It's a signature: test which file version this is; leave empty unless it's the final version)
       - "servicer_signature": ${ servicer_signature if i == "final" else '' }
       - "servicer_name_full": ${ servicer_name_full }
@@ -1375,6 +1355,8 @@ question: |
   Are there any restrictions on the adult's interactions?
 subquestion: |
   Tell us if the adult is restricted from visitors, phone calls, mail, or taking part in activities.
+
+  ${ collapse_template(living_restrictions_help_template) }
 fields:
   - Is the adult restricted from having visitors?: is_having_visitors
     datatype: yesno
@@ -1393,6 +1375,8 @@ question: |
   How is the adult's mental health?
 subquestion: |
   Rate the adult's overall mental and behavioral health during this reporting period. Include any significant improvements or declines.
+
+  ${ collapse_template(mental_health_rating_guide_template) }
 fields:
   - Overall mental health: patient_mental_condition
     datatype: radio
@@ -1404,23 +1388,14 @@ fields:
   - Explanation: patient_overall_condition_explanation
     input type: area
     required: False
-help: |
-  **Mental health rating guide**
-
-  **Excellent:** Thinking is clear. Understands what is happening and can make decisions most of the time.
-
-  **Good:** Usually thinks clearly, but may have some confusion or memory problems at times.
-
-  **Fair:** Often has trouble with memory, understanding, or making decisions. Needs regular help.
-
-  **Poor:** Very confused most of the time. Cannot make decisions without full support.
-  
 ---
 id: physical_health_status
 question: |
   How is the adult's physical health?
 subquestion: |
   Rate the adult's overall physical health. Include any medical conditions, treatments, and significant changes during this reporting period.
+
+  ${ collapse_template(physical_health_rating_guide_template) }
 fields:
   - Overall physical health: patient_physical_condition
     datatype: radio
@@ -1429,22 +1404,14 @@ fields:
       - Good: good
       - Fair: fair
       - Poor: poor
-help: |
-  **Physical health rating guide**
-
-  **Excellent:** Very good health. Can move around and take care of daily needs without help.
-
-  **Good:** Some health issues, but mostly able to care for self. May need a little help.
-
-  **Fair:** Ongoing health problems. Needs regular help with daily tasks.
-
-  **Poor:** Serious health problems. Depends on others for most or all daily care.
 ---
 id: social_health_status
 question: |
   How is the adult's social health?
 subquestion: |
   Rate the adult's social and emotional health. Consider their interactions with others, activities, and any changes in relationships or engagement.
+
+  ${ collapse_template(social_health_rating_guide_template) }
 fields:
   - Overall social health: patient_social_condition
     datatype: radio
@@ -1453,22 +1420,12 @@ fields:
       - Good: good
       - Fair: fair
       - Poor: poor
-help: |
-  **Social health rating guide**
-
-  **Excellent:** Has regular contact with family, friends, or community and takes part in activities.
-
-  **Good:** Has some social contact and takes part in activities sometimes.
-
-  **Fair:** Has limited contact with others and may feel lonely at times.
-
-  **Poor:** Has little to no social contact and is mostly isolated.
 ---
 id: medical_services
 question: |
-  What medical services does the adult receive?
+  What medical care does the adult get?
 subquestion: |
-  List the types of medical services. Examples include visits with a primary care provider, specialists, or dentist. Rate how well these services meet the adult's needs.
+  List the medical care the adult gets. Examples include visits with a primary care provider, specialists, or a dentist. Then say how well this care meets the adult's needs.
 fields:
   - Type of medical services: patient_services_list
     maxlength: 74
@@ -1482,11 +1439,11 @@ fields:
 ---
 id: educational_services
 question: |
-  What educational or vocational services does the adult receive?
+  What training services does the adult get?
 subquestion: |
-  List any educational programs, training, or vocational services. If the adult does not receive these services, check that box.
+  List any school programs, training, or job services. If the adult does not get these services, choose "Not receiving this service."
 fields:
-  - Type of educational/vocational services: patient_education_list
+  - Type of training services: patient_education_list
     maxlength: 71
     required: False
   - How well do these services meet the adult's needs?: education_services_rating
@@ -1500,9 +1457,9 @@ fields:
 ---
 id: other_services
 question: |
-  What other services does the adult receive?
+  What other help does the adult get?
 subquestion: |
-  List any other services such as meal delivery, housekeeping, transportation, or recreation. Rate how well these services meet the adult's needs.
+  List any other help, like meal delivery, housekeeping, transportation, or recreation. Then say how well this help meets the adult's needs.
 fields:
   - Type of other services: patient_other_services_list
     maxlength: 75
@@ -1569,18 +1526,18 @@ id: healthcare_provider_interaction
 question: |
   Tell us about your contact with the adult's healthcare providers.
 subquestion: |
-  Share a summary of how you've worked with the adult's doctors and healthcare team. Include details about communication and the quality of care.
+  Share a summary of how you have worked with the adult's doctors and healthcare team. Include details about communication and the quality of care.
 fields:
   - Summary of interactions: summary_interaction_explanation
     input type: area
 ---
 id: hospitalization_and_treatment
 question: |
-  Has the adult been hospitalized or admitted to a medical facility?
+  Has the adult been in a hospital or another medical facility?
 subquestion: |
-  Tell us about any hospital stays, facility admissions, or emergency room visits during this reporting period. If there were no such admissions, check "No."
+  Tell us about any hospital stays, other facility stays, or emergency room visits during this reporting period. If there were none, choose "No."
 fields:
-  - Was the adult hospitalized or admitted to a facility?: is_acute_medical
+  - Was the adult in a hospital or facility?: is_acute_medical
     datatype: yesnoradio
   - Describe the location and reason: acute_medical_location
     maxlength: 90
@@ -1602,7 +1559,7 @@ id: guardianship_continuation
 question: |
   Should the guardianship continue or change?
 subquestion: |
-  Tell the court whether you think the guardianship should continue. If you think your legal rights as guardian should change, explain why. Note: You must file a petition with the court to make any official changes.
+  Tell the court if the guardianship should stay the same. If you think your rights or duties as guardian should change, explain why. You must file a petition with the court to make an official change.
 fields:
   - Your recommendations: should_guardianship_continue_change_explanation
     input type: area
@@ -1611,7 +1568,7 @@ id: crime_abuse_reports
 question: |
   Have there been any criminal charges, abuse reports, or neglect reports?
 subquestion: |
-  Tell the court about any contact with law enforcement, the DPPC (Disabled Persons Protection Commission), or adult protective services. Include all charges, complaints, or reports, even if they were not proven.
+  Tell the court about any contact with law enforcement, the DPPC, or Adult Protective Services. Include any charges, complaints, or reports, even if they were not proven.
 fields:
   - Were there any such incidents?: is_crime_abuse_neglect_yes
     datatype: yesnoradio
@@ -1621,11 +1578,11 @@ fields:
 ---
 id: fiduciary_responsibility
 question: |
-  Do you hold or manage the adult's financial funds?
+  Do you manage any of the adult's money or property?
 subquestion: |
-  Check "Yes" if you receive or manage money that belongs to the adult. This includes Social Security benefits, inheritances, or other assets. If you also serve as conservator, you must file a separate Conservator's Account.
+  Choose "Yes" if you get or manage money that belongs to the adult. This includes Social Security benefits, inheritances, or other assets. If you also serve as conservator, you must file a separate Conservator's Account.
 fields:
-  - Do you hold financial funds for the adult?: is_fiduciary
+  - Do you manage money for the adult?: is_fiduciary
     datatype: yesnoradio
 ---
 id: fiduciary_role
@@ -1653,71 +1610,133 @@ id: Guardian 1 Signature
 question: |
   Guardian 1 information
 subquestion: |
-  Confirm whether Guardian 1's address has changed and enter the date Guardian 1 signed this form.
+  Confirm if Guardian 1's address has changed and enter the date Guardian 1 signed this form.
 fields:
-  - "Is guardian1 address update": is_guardian1_address_update
+  - "Has Guardian 1's address changed?": is_guardian1_address_update
     datatype: yesno
-  - "Date of guardian1 signature": guardian1_signature_date
+  - "Date Guardian 1 signed the form": guardian1_signature_date
     datatype: date
 ---
 id: Guardian 2 Signature
 question: |
   Guardian 2 information
 subquestion: |
-  If a second guardian is listed, confirm whether their address has changed and enter the date they signed this form.
+  If a second guardian is listed, confirm if their address has changed and enter the date they signed this form.
 fields:
-  - "Is guardian2 address update": is_guardian2_address_update
+  - "Has Guardian 2's address changed?": is_guardian2_address_update
     datatype: yesno
-  - "Date of guardian2 signature": guardian2_signature_date
+  - "Date Guardian 2 signed the form": guardian2_signature_date
     datatype: date
 ---
 id: certificate of service preamble
 question: |
   Certificate of service
 subquestion: |
-  Enter the date you served the form and how copies were delivered to required recipients.
+  Enter the date you gave out copies of the form. Then say how each required person got their copy.
+
+  ${ collapse_template(certificate_of_service_help_template) }
 fields:
-  - "Date of servicer signature": servicer_signature_date
+  - "Date copies were served": servicer_signature_date
     datatype: date
-  - "Is adult submission method hand": is_adult_submission_method_hand
+  - "Adult got a copy by hand": is_adult_submission_method_hand
     datatype: yesno
-  - "Is adult submission method mail": is_adult_submission_method_mail
+  - "Adult got a copy by mail": is_adult_submission_method_mail
     datatype: yesno
-  - "Is attorney submission method hand": is_attorney_submission_method_hand
+  - "Attorney got a copy by hand": is_attorney_submission_method_hand
     datatype: yesno
-  - "Is attorney submission method mail": is_attorney_submission_method_mail
+  - "Attorney got a copy by mail": is_attorney_submission_method_mail
     datatype: yesno
-  - "Is attorney submission method email": is_attorney_submission_method_email
+  - "Attorney got a copy by email": is_attorney_submission_method_email
     datatype: yesno
-  - "By handing it to them 3": by_handing_it_to_them_3
+  - "Another required person got a copy by hand": by_handing_it_to_them_3
     datatype: yesno
-  - "By mailing it to the address they provided to the court": by_mailing_it_to_the_address_they_provided_to_the_court
+  - "Another required person got a copy by mail": by_mailing_it_to_the_address_they_provided_to_the_court
     datatype: yesno
 ---
 id: Servicer Signature Close Out
 question: |
   Your contact information
 subquestion: |
-  Enter the contact information for the person who signs the certificate of service.
+  Enter contact information for the person who gave out or mailed the copies.
+
+  ${ collapse_template(servicer_contact_info_help_template) }
 fields:
-  - "Servicer name full": servicer_name_full
+  - "Full name of person who served the form": servicer_name_full
     maxlength: 48
-  - "Servicer address address": servicer_address_address
+  - "Street address": servicer_address_address
     maxlength: 35
-  - "Servicer address unit": servicer_address_unit
+  - "Unit": servicer_address_unit
     maxlength: 12
-  - "Servicer address city": servicer_address_city
+  - "City": servicer_address_city
     maxlength: 27
-  - "Servicer address state": servicer_address_state
+  - "State": servicer_address_state
     maxlength: 6
-  - "Servicer address zip": servicer_address_zip
+  - "ZIP code": servicer_address_zip
     maxlength: 12
-  - "Servicer phone number": servicer_phone_number
+  - "Phone number": servicer_phone_number
     maxlength: 35
-  - "BBO number": bbo_number
+  - "BBO number (if any)": bbo_number
     maxlength: 41
-  - "Servicer email": servicer_email
+  - "Email address": servicer_email
     maxlength: 41
+---
+template: living_restrictions_help_template
+subject: |
+  When should I answer "Yes"?
+content: |
+  Answer **Yes** if the adult is not allowed to do one of these things all or part of the time.
+
+  If you answer **Yes** to any item, explain who set the limit and why.
+---
+template: mental_health_rating_guide_template
+subject: |
+  Mental health rating guide
+content: |
+  **Excellent:** Thinking is clear. Understands what is happening and can make decisions most of the time.
+
+  **Good:** Usually thinks clearly, but may have some confusion or memory problems at times.
+
+  **Fair:** Often has trouble with memory, understanding, or making decisions. Needs regular help.
+
+  **Poor:** Very confused most of the time. Cannot make decisions without full support.
+---
+template: physical_health_rating_guide_template
+subject: |
+  Physical health rating guide
+content: |
+  **Excellent:** Very good health. Can move around and take care of daily needs without help.
+
+  **Good:** Some health issues, but mostly able to care for self. May need a little help.
+
+  **Fair:** Ongoing health problems. Needs regular help with daily tasks.
+
+  **Poor:** Serious health problems. Depends on others for most or all daily care.
+---
+template: social_health_rating_guide_template
+subject: |
+  Social health rating guide
+content: |
+  **Excellent:** Has regular contact with family, friends, or community and takes part in activities.
+
+  **Good:** Has some social contact and takes part in activities sometimes.
+
+  **Fair:** Has limited contact with others and may feel lonely at times.
+
+  **Poor:** Has little to no social contact and is mostly isolated.
+---
+template: certificate_of_service_help_template
+subject: |
+  How do I answer these delivery questions?
+content: |
+  Check every way you gave out copies.
+
+  If a person did not get a copy in one of these ways, leave that box unchecked.
+---
+template: servicer_contact_info_help_template
+subject: |
+  Can I leave the BBO number blank?
+content: |
+  If the person who served the form is not a lawyer, you can leave the BBO number blank.
 ---
 id: preview guardians_care_plan_report_mpc_821
 question: |
@@ -1727,12 +1746,13 @@ subquestion: |
   
   ${ al_court_bundle.as_pdf(key='preview') }
 
-  Click the image to open it in a new tab. Click the "Edit answers" button
-  to edit your answers.
+  Open the image in a new tab if you want a larger view.
+
+  Use the "Edit answers" button to make changes.
 
   ${ action_button_html(url_action('review_guardians_care_plan_report_mpc_821'), label='Edit answers', color='info') }
   
-  Remember to come back to this window to continue and sign your form.
+  Return here when you are ready to sign.
 continue button field: guardians_care_plan_report_mpc_821_preview_question    
 ---
 code: |
@@ -1743,7 +1763,7 @@ id: servicer_signature_screen
 question: |
   Your signature
 subquestion: |
-  Sign below to confirm that all information you provided is true. You sign under the penalties of perjury.
+  Sign below to confirm that the information you entered is true. You are signing under the penalties of perjury.
 signature: servicer_signature
 ---
 code: |
@@ -1775,15 +1795,15 @@ review:
       ${ patient1_name_first } ${ patient1_name_middleinitial if patient1_name_middleinitial else '' } ${ patient1_name_last }
   - Edit: report_type
     button: |
-      **Report type**:
+      **Which form**:
       ${ report_type }
   - Edit: reportperiod_beginning
     button: |
-      **Reporting period begins**:
+      **Start date**:
       ${ reportperiod_beginning }
   - Edit: reportperiod_end
     button: |
-      **Reporting period ends**:
+      **End date**:
       ${ reportperiod_end }
   - Edit: guardian_relationship
     button: |
@@ -1874,7 +1894,7 @@ review:
       ${ medical_services_rating }
   - Edit: patient_education_list
     button: |
-      **Educational/vocational services**:
+      **Training services**:
       ${ patient_education_list }
   - Edit: education_services_rating
     button: |
@@ -1986,7 +2006,7 @@ review:
     show if: len(guardians) > 1
   - Edit: servicer_signature_date
     button: |
-      **Servicer signature date**:
+      **Date copies were served**:
       ${ servicer_signature_date }
   - Edit: is_adult_submission_method_hand
     button: |
@@ -2010,43 +2030,43 @@ review:
       ${ word(yesno(is_attorney_submission_method_email)) }
   - Edit: by_handing_it_to_them_3
     button: |
-      **By handing it to them 3**:
+      **Other person got a copy by hand**:
       ${ word(yesno(by_handing_it_to_them_3)) }
   - Edit: by_mailing_it_to_the_address_they_provided_to_the_court
     button: |
-      **By mailing it to the address they provided to the court**:
+      **Other person got a copy by mail**:
       ${ word(yesno(by_mailing_it_to_the_address_they_provided_to_the_court)) }
   - Edit: servicer_signature
     button: |
-      **servicer_signature**:
+      **Signature**:
       ${ servicer_signature }
   - Edit: servicer_name_full
     button: |
-      **Servicer name full**:
+      **Full name of person who served the form**:
       ${ servicer_name_full }
   - Edit: servicer_address_address
     button: |
-      **Servicer address address**:
+      **Street address**:
       ${ servicer_address_address }
   - Edit: servicer_address_unit
     button: |
-      **Servicer address unit**:
+      **Unit**:
       ${ servicer_address_unit }
   - Edit: servicer_address_city
     button: |
-      **Servicer address city**:
+      **City**:
       ${ servicer_address_city }
   - Edit: servicer_address_state
     button: |
-      **Servicer address state**:
+      **State**:
       ${ servicer_address_state }
   - Edit: servicer_address_zip
     button: |
-      **Servicer address zip**:
+      **ZIP code**:
       ${ servicer_address_zip }
   - Edit: servicer_phone_number
     button: |
-      **Servicer phone number**:
+      **Phone number**:
       ${ servicer_phone_number }
   - Edit: bbo_number
     button: |
@@ -2054,7 +2074,7 @@ review:
       ${ bbo_number }
   - Edit: servicer_email
     button: |
-      **Servicer email**:
+      **Email address**:
       ${ servicer_email }
 ---
 id: edit_guardians
@@ -2272,7 +2292,7 @@ attachment:
       - "is_attorney_submission_method_mail": ${ is_attorney_submission_method_mail }
       - "is_attorney_submission_method_email": ${ is_attorney_submission_method_email }
       - "by handing it to them_3": ${ by_handing_it_to_them_3 }
-      - "by mailing it to the address they provided to the court": ${ by_mailing_it_to_the_address_they_provided_to_the_court }
+      - "by mailing it to the address on file with the court": ${ by_mailing_it_to_the_address_they_provided_to_the_court }
       # It's a signature: test which file version this is; leave empty unless it's the final version)
       - "servicer_signature": ${ servicer_signature if i == "final" else '' }
       - "servicer_name_full": ${ servicer_name_full }
