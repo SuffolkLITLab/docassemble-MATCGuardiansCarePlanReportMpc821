@@ -93,8 +93,8 @@ code: |
   interview_short_title = "File a Guardian's Care Plan Report"
 ---
 sections:
-  - about_you: About you
   - about_adult: About the adult
+  - about_you: About you
   - living_situation: Living situation
   - health_services: Health and services
   - contact_decisions: Contact and decisions
@@ -103,20 +103,24 @@ sections:
   - finances: Finances
   - review_guardians_care_plan_report_mpc_821: Review and sign
 ---
+objects:
+  - guardians: ALPeopleList.using(there_are_any=True)
+---
 comment: |
   Controls order and branching logic for questions specific to this form
 id: interview_order_guardians_care_plan_report_mpc_821
 code: |
   # Set the allowed courts for this interview
   allowed_courts = ["Probate and Family Court"]
-  nav.set_section("about_you")
+  nav.set_section("about_adult")
   user_role = "na"
   user_ask_role = "na"
   patient1_name_first
-  report_type
-  nav.set_section("about_adult")
-  guardian_relationship
   patient1_address_on_one_line
+  nav.set_section("about_you")
+  guardians.gather()
+  guardian_relationship
+  report_type
   nav.set_section("living_situation")
   housing_type
   is_housing
@@ -126,11 +130,11 @@ code: |
   patient_physical_condition
   patient_social_condition
   patient_services_list
+  nav.set_section("contact_decisions")
   contact_frequency
   if if_decision_making:
     decision_making_areas
   set_progress(35)
-  nav.set_section("contact_decisions")
   summary_interaction_explanation
   nav.set_section("hospitalizations")
   is_acute_medical
@@ -209,12 +213,35 @@ subquestion: |
   - Print or download your completed report
   - File it with the Probate and Family Court
   - Give a copy to anyone who must get one
-
-
+---
+sets:
+  - guardians[0].name.first
+  - guardians[0].name.last
+id: your name
+question: |
+  What is your name?
+subquestion: |
+  **You** means the person filling out this form (the guardian for ${ patient1_name_first }).
+  If there is more than one guardian, you will have a chance to write the second guardian's
+  information next.
+fields:
+  - code: |
+      guardians[0].name_fields()
+---
+id: another guardian?
+question: |
+  Is there another guardian for ${ patient1_name_first }?
+fields:
+  - Is there another guardian?: guardians.there_is_another
+    datatype: yesno
+---
+code: |
+  if guardians.number() >= 2:
+    guardians.there_is_another = False
 ---
 id: legal_name
 question: |
-  What is the name of the adult for whom you are guardian?
+  Who is the person protected by the guardianship?
 fields:
   - First name: patient1_name_first
     maxlength: 24
@@ -252,22 +279,21 @@ fields:
 ---
 id: report_type_and_period
 question: |
-  Which form are you filing?
+  Which report do you need to file?
 subquestion: |
   Choose the 60-day form or the annual form.
+
+  <div class="alert alert-info" role="alert">
+    You need to file the 60-day report within 60 days of your appointment as guardian. Then file the annual report every year on the anniversary of that date.
+  </div>
 fields:
   - Which form is this?: report_type
     datatype: radio
     choices:
       - 60-day report: sixty_day
       - Annual report: annual
----
-id: reporting_dates
-question: |
-  What dates does this filing cover?
-subquestion: |
-  Enter the start and end dates of the reporting period.
-fields:
+  - note: |
+      What dates does this filing cover?
   - Start date: reportperiod_beginning
     datatype: date
   - End date: reportperiod_end
@@ -275,11 +301,11 @@ fields:
 ---
 id: guardian_relationship
 question: |
-  What is your relationship to the adult?
+  What is your relationship to the ${ patient1_name_first }?
 subquestion: |
   Choose the choice that best describes your relationship to the person under guardianship.
 fields:
-  - Relationship: guardian_relationship
+  - My relationship to ${ patient1_name_first } is: guardian_relationship
     datatype: radio
     choices:
       - Parent: parent
@@ -306,6 +332,7 @@ subquestion: |
   Enter the adult's current home address. If they are unhoused, write "unhoused."
 fields:
   - Current address: patient1_address_on_one_line
+    address autocomplete: True
     maxlength: 69
 ---
 id: living_arrangement
