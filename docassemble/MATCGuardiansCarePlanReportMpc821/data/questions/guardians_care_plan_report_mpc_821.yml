@@ -105,6 +105,7 @@ sections:
 ---
 objects:
   - guardians: ALPeopleList.using(there_are_any=True)
+  - patients: ALPeopleList.using(ask_number=True, target_number=1, complete_attribute=["address.address", "name.first"])
 ---
 comment: |
   Controls order and branching logic for questions specific to this form
@@ -115,8 +116,7 @@ code: |
   nav.set_section("about_adult")
   user_role = "na"
   user_ask_role = "na"
-  patient1_name_first
-  patient1_address_on_one_line
+  patients.gather()
   nav.set_section("about_you")
   guardians.gather()
   guardian_relationship
@@ -147,11 +147,6 @@ code: |
   is_fiduciary
   if is_fiduciary:
     fiduciary_types
-  guardians.gather()
-  for guardian in guardians:
-    guardian.address.address
-    guardian.phone_number
-    guardian.email
   is_guardian1_address_update
   guardian1_signature_date
   if len(guardians) > 1:
@@ -215,22 +210,36 @@ subquestion: |
   - Give a copy to anyone who must get one
 ---
 sets:
-  - guardians[0].name.first
-  - guardians[0].name.last
+  - guardians[i].name.first
+  - guardians[i].name.last
+  - guardians[i].address.address
 id: your name
 question: |
+  % if i == 0:
   What is your name?
+    % else:
+    What is the name of the other guardian?
+    % endif
 subquestion: |
-  **You** means the person filling out this form (the guardian for ${ patient1_name_first }).
+  % if i == 0:
+  **You** means the person filling out this form (the guardian for ${ patients[0].name.first }).
   If there is more than one guardian, you will have a chance to write the second guardian's
   information next.
+  % endif
 fields:
   - code: |
-      guardians[0].name_fields()
+      guardians[i].name_fields()
+  - code: |
+      guardians[i].address_fields()
+  - Phone number: guardians[i].phone_number
+    maxlength: 35
+  - Email address: guardians[i].email
+    datatype: email
+    maxlength: 41
 ---
 id: another guardian?
 question: |
-  Is there another guardian for ${ patient1_name_first }?
+  Is there another guardian for ${ patients[0].name.first }?
 fields:
   - Is there another guardian?: guardians.there_is_another
     datatype: yesno
@@ -239,17 +248,17 @@ code: |
   if guardians.number() >= 2:
     guardians.there_is_another = False
 ---
+sets:
+  - patients[0].name.first
+  - patients[0].name.middle
+  - patients[0].name.last
+  - patients[0].name.suffix
 id: legal_name
 question: |
   Who is the person protected by the guardianship?
 fields:
-  - First name: patient1_name_first
-    maxlength: 24
-  - Middle initial (optional): patient1_name_middleinitial
-    maxlength: 3
-    required: False
-  - Last name: patient1_name_last
-    maxlength: 26
+  - code: |
+      patients[0].name_fields()
 ---
 id: court_information
 question: |
@@ -301,11 +310,11 @@ fields:
 ---
 id: guardian_relationship
 question: |
-  What is your relationship to the ${ patient1_name_first }?
+  What is your relationship to the ${ patients[0].name.first }?
 subquestion: |
   Choose the choice that best describes your relationship to the person under guardianship.
 fields:
-  - My relationship to ${ patient1_name_first } is: guardian_relationship
+  - My relationship to ${ patients[0].name.first } is: guardian_relationship
     datatype: radio
     choices:
       - Parent: parent
@@ -325,21 +334,25 @@ fields:
       variable: guardian_relationship
       is: other
 ---
+sets:
+  - patients[0].address.address
+  - patients[0].address.city
+  - patients[0].address.state
+  - patients[0].address.zip
 id: current_address
 question: |
-  Where does the adult live now?
+  Where does ${ patients.familiar(unique_names=guardians, default="the adult") } live now?
 subquestion: |
-  Enter the adult's current home address. If they are unhoused, write "unhoused."
+  Enter ${ patients.familiar(unique_names=guardians, default="the adult") }'s current home address. If they are unhoused, write "unhoused."
 fields:
-  - Current address: patient1_address_on_one_line
-    address autocomplete: True
-    maxlength: 69
+  - code: |
+      patients[0].address_fields()
 ---
 id: living_arrangement
 question: |
-  What type of living arrangement does the adult have?
+  What type of living arrangement does ${ patients.familiar(unique_names=guardians, default="the adult") } have?
 subquestion: |
-  Choose where the adult lives now.
+  Choose where ${ patients.familiar(unique_names=guardians, default="the adult") } lives now.
 fields:
   - Living arrangement: housing_type
     datatype: radio
@@ -360,11 +373,11 @@ fields:
 ---
 id: other_places_lived
 question: |
-  Did the adult live at any other address during this reporting period?
+  Did ${ patients.familiar(unique_names=guardians, default="the adult") } live at any other address during this reporting period?
 subquestion: |
-  List any other places where the adult stayed or lived during the reporting period.
+  List any other places where ${ patients.familiar(unique_names=guardians, default="the adult") } stayed or lived during the reporting period.
 fields:
-  - Did the adult live elsewhere?: is_housing
+  - Did ${ patients.familiar(unique_names=guardians, default="the adult") } live elsewhere?: is_housing
     datatype: yesno
   - Other address: other_patient_address_on_one_line
     maxlength: 69
@@ -377,19 +390,19 @@ fields:
 ---
 id: living_restrictions
 question: |
-  Are there any restrictions on the adult's interactions?
+  Are there any restrictions on ${ patients.familiar(unique_names=guardians, default="the adult") }'s interactions?
 subquestion: |
-  Tell us if the adult is restricted from visitors, phone calls, mail, or taking part in activities.
+  Tell us if ${ patients.familiar(unique_names=guardians, default="the adult") } is restricted from visitors, phone calls, mail, or taking part in activities.
 
   ${ collapse_template(living_restrictions_help_template) }
 fields:
-  - Is the adult restricted from having visitors?: is_having_visitors
+  - Is ${ patients.familiar(unique_names=guardians, default="the adult") } restricted from having visitors?: is_having_visitors
     datatype: yesno
-  - Is the adult restricted from making phone calls?: is_making_calls
+  - Is ${ patients.familiar(unique_names=guardians, default="the adult") } restricted from making phone calls?: is_making_calls
     datatype: yesno
-  - Is the adult restricted from sending or receiving mail?: is_mailing
+  - Is ${ patients.familiar(unique_names=guardians, default="the adult") } restricted from sending or receiving mail?: is_mailing
     datatype: yesno
-  - Is the adult restricted from participating in activities?: is_participating
+  - Is ${ patients.familiar(unique_names=guardians, default="the adult") } restricted from participating in activities?: is_participating
     datatype: yesno
   - Explain the reasons for these restrictions: patient_restricted_living_explanation
     input type: area
@@ -397,9 +410,9 @@ fields:
 ---
 id: mental_health_status
 question: |
-  How is the adult's mental health?
+  How is ${ patients.familiar(unique_names=guardians, default="the adult") }'s mental health?
 subquestion: |
-  Rate the adult's overall mental and behavioral health during this reporting period. Include any significant improvements or declines.
+  Rate ${ patients.familiar(unique_names=guardians, default="the adult") }'s overall mental and behavioral health during this reporting period. Include any significant improvements or declines.
 
   ${ collapse_template(mental_health_rating_guide_template) }
 fields:
@@ -416,9 +429,9 @@ fields:
 ---
 id: physical_health_status
 question: |
-  How is the adult's physical health?
+  How is ${ patients.familiar(unique_names=guardians, default="the adult") }'s physical health?
 subquestion: |
-  Rate the adult's overall physical health. Include any medical conditions, treatments, and significant changes during this reporting period.
+  Rate ${ patients.familiar(unique_names=guardians, default="the adult") }'s overall physical health. Include any medical conditions, treatments, and significant changes during this reporting period.
 
   ${ collapse_template(physical_health_rating_guide_template) }
 fields:
@@ -432,9 +445,9 @@ fields:
 ---
 id: social_health_status
 question: |
-  How is the adult's social health?
+  How is ${ patients.familiar(unique_names=guardians, default="the adult") }'s social health?
 subquestion: |
-  Rate the adult's social and emotional health. Consider their interactions with others, activities, and any changes in relationships or engagement.
+  Rate ${ patients.familiar(unique_names=guardians, default="the adult") }'s social and emotional health. Consider their interactions with others, activities, and any changes in relationships or engagement.
 
   ${ collapse_template(social_health_rating_guide_template) }
 fields:
@@ -448,13 +461,13 @@ fields:
 ---
 id: medical_services
 question: |
-  What medical care does the adult get?
+  What medical care does ${ patients.familiar(unique_names=guardians, default="the adult") } get?
 subquestion: |
-  List the medical care the adult gets. Examples include visits with a primary care provider, specialists, or a dentist. Then say how well this care meets the adult's needs.
+  List the medical care ${ patients.familiar(unique_names=guardians, default="the adult") } gets. Examples include visits with a primary care provider, specialists, or a dentist. Then say how well this care meets ${ patients.familiar(unique_names=guardians, default="the adult") }'s needs.
 fields:
   - Type of medical services: patient_services_list
     maxlength: 74
-  - How well do these services meet the adult's needs?: medical_services_rating
+  - How well do these services meet ${ patients.familiar(unique_names=guardians, default="the adult") }'s needs?: medical_services_rating
     datatype: radio
     choices:
       - Excellent: excellent
@@ -464,14 +477,14 @@ fields:
 ---
 id: educational_services
 question: |
-  What training services does the adult get?
+  What training services does ${ patients.familiar(unique_names=guardians, default="the adult") } get?
 subquestion: |
-  List any school programs, training, or job services. If the adult does not get these services, choose "Not receiving this service."
+  List any school programs, training, or job services. If ${ patients.familiar(unique_names=guardians, default="the adult") } does not get these services, choose "Not receiving this service."
 fields:
   - Type of training services: patient_education_list
     maxlength: 71
     required: False
-  - How well do these services meet the adult's needs?: education_services_rating
+  - How well do these services meet ${ patients.familiar(unique_names=guardians, default="the adult") }'s needs?: education_services_rating
     datatype: radio
     choices:
       - Excellent: excellent
@@ -482,13 +495,13 @@ fields:
 ---
 id: other_services
 question: |
-  What other help does the adult get?
+  What other help does ${ patients.familiar(unique_names=guardians, default="the adult") } get?
 subquestion: |
-  List any other help, like meal delivery, housekeeping, transportation, or recreation. Then say how well this help meets the adult's needs.
+  List any other help, like meal delivery, housekeeping, transportation, or recreation. Then say how well this help meets ${ patients.familiar(unique_names=guardians, default="the adult") }'s needs.
 fields:
   - Type of other services: patient_other_services_list
     maxlength: 75
-  - How well do these services meet the adult's needs?: other_services_rating
+  - How well do these services meet ${ patients.familiar(unique_names=guardians, default="the adult") }'s needs?: other_services_rating
     datatype: radio
     choices:
       - Excellent: excellent
@@ -498,9 +511,9 @@ fields:
 ---
 id: contact_with_adult
 question: |
-  How often did you have contact with the adult during this reporting period?
+  How often did you have contact with ${ patients.familiar(unique_names=guardians, default="the adult") } during this reporting period?
 subquestion: |
-  Choose the type that best describes your typical contact with the adult.
+  Choose the type that best describes your typical contact with ${ patients.familiar(unique_names=guardians, default="the adult") }.
 fields:
   - Contact frequency: contact_frequency
     datatype: radio
@@ -520,18 +533,18 @@ fields:
 ---
 id: decision_making_participation
 question: |
-  Did the adult take part in making decisions?
+  Did ${ patients.familiar(unique_names=guardians, default="the adult") } take part in making decisions?
 subquestion: |
-  Massachusetts law requires guardians to encourage the adult to take part in decisions affecting their life. Tell the court how much the adult took part.
+  Massachusetts law requires guardians to encourage ${ patients.familiar(unique_names=guardians, default="the adult") } to take part in decisions affecting their life. Tell the court how much ${ patients.familiar(unique_names=guardians, default="the adult") } took part.
 fields:
-  - Did the adult take part in any decision-making?: if_decision_making
+  - Did ${ patients.familiar(unique_names=guardians, default="the adult") } take part in any decision-making?: if_decision_making
     datatype: yesnoradio
 ---
 id: what_decisions
 question: |
-  Which of these decisions did the adult take part in?
+  Which of these decisions did ${ patients.familiar(unique_names=guardians, default="the adult") } take part in?
 subquestion: |
-  Choose all that apply. Include any other areas where the adult took part.
+  Choose all that apply. Include any other areas where ${ patients.familiar(unique_names=guardians, default="the adult") } took part.
 fields:
   - Decisions: decision_making_areas
     datatype: checkboxes
@@ -549,33 +562,33 @@ fields:
 ---
 id: healthcare_provider_interaction
 question: |
-  Tell us about your contact with the adult's healthcare providers.
+  Tell us about your contact with ${ patients.familiar(unique_names=guardians, default="the adult") }'s healthcare providers.
 subquestion: |
-  Share a summary of how you have worked with the adult's doctors and healthcare team. Include details about communication and the quality of care.
+  Share a summary of how you have worked with ${ patients.familiar(unique_names=guardians, default="the adult") }'s doctors and healthcare team. Include details about communication and the quality of care.
 fields:
   - Summary of interactions: summary_interaction_explanation
     input type: area
 ---
 id: hospitalization_and_treatment
 question: |
-  Has the adult been in a hospital or another medical facility?
+  Has ${ patients.familiar(unique_names=guardians, default="the adult") } been in a hospital or another medical facility?
 subquestion: |
   Tell us about any hospital stays, other facility stays, or emergency room visits during this reporting period. If there were none, choose "No."
 fields:
-  - Was the adult in a hospital or facility?: is_acute_medical
+  - Was ${ patients.familiar(unique_names=guardians, default="the adult") } in a hospital or facility?: is_acute_medical
     datatype: yesnoradio
   - Describe the location and reason: acute_medical_location
     maxlength: 90
     show if: is_acute_medical
-  - Does the treatment or habilitation plan support the adult's best interests?: acute_medical_best
+  - Does the treatment or habilitation plan support ${ patients.familiar(unique_names=guardians, default="the adult") }'s best interests?: acute_medical_best
     datatype: yesnoradio
     show if: is_acute_medical
 ---
 id: future_care_plans
 question: |
-  What are your plans for the future care of the adult?
+  What are your plans for the future care of ${ patients.familiar(unique_names=guardians, default="the adult") }?
 subquestion: |
-  Describe what you expect to happen with the adult's care and services. If current care arrangements are working well and will continue, explain that. Do not simply write "no changes" without explanation.
+  Describe what you expect to happen with ${ patients.familiar(unique_names=guardians, default="the adult") }'s care and services. If current care arrangements are working well and will continue, explain that. Do not simply write "no changes" without explanation.
 fields:
   - Future care plans and expectations: future_plans_explanation
     input type: area
@@ -603,16 +616,16 @@ fields:
 ---
 id: fiduciary_responsibility
 question: |
-  Do you manage any of the adult's money or property?
+  Do you manage any of ${ patients.familiar(unique_names=guardians, default="the adult") }'s money or property?
 subquestion: |
-  Choose "Yes" if you get or manage money that belongs to the adult. This includes Social Security benefits, inheritances, or other assets. If you also serve as conservator, you must file a separate Conservator's Account.
+  Choose "Yes" if you get or manage money that belongs to ${ patients.familiar(unique_names=guardians, default="the adult") }. This includes Social Security benefits, inheritances, or other assets. If you also serve as conservator, you must file a separate Conservator's Account.
 fields:
-  - Do you manage money for the adult?: is_fiduciary
+  - Do you manage money for ${ patients.familiar(unique_names=guardians, default="the adult") }?: is_fiduciary
     datatype: yesnoradio
 ---
 id: fiduciary_role
 question: |
-  What legal right do you have to hold the adult's funds?
+  What legal right do you have to hold ${ patients.familiar(unique_names=guardians, default="the adult") }'s funds?
 subquestion: |
   Choose all that apply. If none apply, explain why you have the legal right to hold the funds.
 fields:
@@ -633,25 +646,19 @@ fields:
 ---
 id: Guardian 1 Signature
 question: |
-  Guardian 1 information
+  Is your address a new one?
 subquestion: |
-  Confirm if Guardian 1's address has changed and enter the date Guardian 1 signed this form.
+  You told us your address is ${ guardians[0].address.on_one_line() }. Is this a new address from the last report you filed?
 fields:
-  - "Has Guardian 1's address changed?": is_guardian1_address_update
+  - Is this a new address for you?: is_guardian1_address_update
     datatype: yesno
-  - "Date Guardian 1 signed the form": guardian1_signature_date
-    datatype: date
 ---
 id: Guardian 2 Signature
 question: |
-  Guardian 2 information
-subquestion: |
-  If a second guardian is listed, confirm if their address has changed and enter the date they signed this form.
+  Is ${ guardians[1].familiar() }'s address a new one from the last report you filed?
 fields:
-  - "Has Guardian 2's address changed?": is_guardian2_address_update
+  - Is this address new for ${ guardians[1].familiar() }?: is_guardian2_address_update
     datatype: yesno
-  - "Date Guardian 2 signed the form": guardian2_signature_date
-    datatype: date
 ---
 id: certificate of service preamble
 question: |
@@ -753,10 +760,10 @@ review:
     button: |
       **Trial court division**:
       ${ trial_court_division }
-  - Edit: patient1_name_first
+  - Edit: patients[0].name.first
     button: |
       **Adult's name**:
-      ${ patient1_name_first } ${ patient1_name_middleinitial if patient1_name_middleinitial else '' } ${ patient1_name_last }
+      ${ patients[0].name.first } ${ patients[0].name.middle if patients[0].name.middle else '' } ${ patients[0].name.last }
   - Edit: report_type
     button: |
       **Which form**:
@@ -783,10 +790,10 @@ review:
       **Relationship description**:
       ${ relation_other_description if guardian_relationship == "other" else "N/A" }
     show if: guardian_relationship == "other"
-  - Edit: patient1_address_on_one_line
+  - Edit: patients[0].address.address
     button: |
       **Current address**:
-      ${ patient1_address_on_one_line }
+      ${ patients[0].address.on_one_line() }
   - Edit: housing_type
     button: |
       **Living arrangement**:
@@ -1121,9 +1128,9 @@ attachment:
   fields:
       - "docket_number": ${ docket_number }
       - "trial_court_division": ${ trial_court_division }
-      - "patient1_name_first": ${ patient1_name_first }
-      - "patient1_name_middleinitial": ${ patient1_name_middleinitial }
-      - "patient1_name_last": ${ patient1_name_last }
+      - "patient1_name_first": ${ patients[0].name.first }
+      - "patient1_name_middleinitial": ${ patients[0].name.middle }
+      - "patient1_name_last": ${ patients[0].name.last }
       - "reporttype_60day": ${ report_type == "sixty_day" }
       - "reporttype_annual": ${ report_type == "annual" }
       - "reportperiod_beginning": ${ reportperiod_beginning.format() }
@@ -1136,7 +1143,7 @@ attachment:
       - "relation_professional_description": ${ relation_professional_description if guardian_relationship == "professional" else "" }
       - "relation_other": ${ guardian_relationship == "other" }
       - "relation_other_description": ${ relation_other_description if guardian_relationship == "other" else "" }
-      - "patient1_address_on_one_line": ${ patient1_address_on_one_line }
+      - "patient1_address_on_one_line": ${ patients[0].address.on_one_line() }
       - "patient_housing_private": ${ housing_type == "private" }
       - "patient_housing_foster": ${ housing_type == "foster" }
       - "patient_housing_group": ${ housing_type == "group" }
@@ -1304,7 +1311,7 @@ code: |
 ---
 id: guardian_relationship
 question: |
-  What is your relationship to the adult?
+  What is your relationship to ${ patients.familiar(unique_names=guardians, default="the adult") }?
 subquestion: |
   Choose the choice that best describes your relationship to the person under guardianship.
 fields:
@@ -1328,20 +1335,25 @@ fields:
       variable: guardian_relationship
       is: other
 ---
+sets:
+  - patients[0].address.address
+  - patients[0].address.city
+  - patients[0].address.state
+  - patients[0].address.zip
 id: current_address
 question: |
-  Where does the adult live now?
+  Where does ${ patients.familiar(unique_names=guardians, default="the adult") } live now?
 subquestion: |
-  Enter the adult's current home address. If they are unhoused, write "unhoused."
+  Enter ${ patients.familiar(unique_names=guardians, default="the adult") }'s current home address. If they are unhoused, write "unhoused."
 fields:
-  - Current address: patient1_address_on_one_line
-    maxlength: 69
+  - code: |
+      patients[0].address_fields()
 ---
 id: living_arrangement
 question: |
-  What type of living arrangement does the adult have?
+  What type of living arrangement does ${ patients.familiar(unique_names=guardians, default="the adult") } have?
 subquestion: |
-  Choose where the adult lives now.
+  Choose where ${ patients.familiar(unique_names=guardians, default="the adult") } lives now.
 fields:
   - Living arrangement: housing_type
     datatype: radio
@@ -1362,11 +1374,11 @@ fields:
 ---
 id: other_places_lived
 question: |
-  Did the adult live at any other address during this reporting period?
+  Did ${ patients.familiar(unique_names=guardians, default="the adult") } live at any other address during this reporting period?
 subquestion: |
-  List any other places where the adult stayed or lived during the reporting period.
+  List any other places where ${ patients.familiar(unique_names=guardians, default="the adult") } stayed or lived during the reporting period.
 fields:
-  - Did the adult live elsewhere?: is_housing
+  - Did ${ patients.familiar(unique_names=guardians, default="the adult") } live elsewhere?: is_housing
     datatype: yesno
   - Other address: other_patient_address_on_one_line
     maxlength: 69
@@ -1379,19 +1391,19 @@ fields:
 ---
 id: living_restrictions
 question: |
-  Are there any restrictions on the adult's interactions?
+  Are there any restrictions on ${ patients.familiar(unique_names=guardians, default="the adult") }'s interactions?
 subquestion: |
-  Tell us if the adult is restricted from visitors, phone calls, mail, or taking part in activities.
+  Tell us if ${ patients.familiar(unique_names=guardians, default="the adult") } is restricted from visitors, phone calls, mail, or taking part in activities.
 
   ${ collapse_template(living_restrictions_help_template) }
 fields:
-  - Is the adult restricted from having visitors?: is_having_visitors
+  - Is ${ patients.familiar(unique_names=guardians, default="the adult") } restricted from having visitors?: is_having_visitors
     datatype: yesno
-  - Is the adult restricted from making phone calls?: is_making_calls
+  - Is ${ patients.familiar(unique_names=guardians, default="the adult") } restricted from making phone calls?: is_making_calls
     datatype: yesno
-  - Is the adult restricted from sending or receiving mail?: is_mailing
+  - Is ${ patients.familiar(unique_names=guardians, default="the adult") } restricted from sending or receiving mail?: is_mailing
     datatype: yesno
-  - Is the adult restricted from participating in activities?: is_participating
+  - Is ${ patients.familiar(unique_names=guardians, default="the adult") } restricted from participating in activities?: is_participating
     datatype: yesno
   - Explain the reasons for these restrictions: patient_restricted_living_explanation
     input type: area
@@ -1399,9 +1411,9 @@ fields:
 ---
 id: mental_health_status
 question: |
-  How is the adult's mental health?
+  How is ${ patients.familiar(unique_names=guardians, default="the adult") }'s mental health?
 subquestion: |
-  Rate the adult's overall mental and behavioral health during this reporting period. Include any significant improvements or declines.
+  Rate ${ patients.familiar(unique_names=guardians, default="the adult") }'s overall mental and behavioral health during this reporting period. Include any significant improvements or declines.
 
   ${ collapse_template(mental_health_rating_guide_template) }
 fields:
@@ -1418,9 +1430,9 @@ fields:
 ---
 id: physical_health_status
 question: |
-  How is the adult's physical health?
+  How is ${ patients.familiar(unique_names=guardians, default="the adult") }'s physical health?
 subquestion: |
-  Rate the adult's overall physical health. Include any medical conditions, treatments, and significant changes during this reporting period.
+  Rate ${ patients.familiar(unique_names=guardians, default="the adult") }'s overall physical health. Include any medical conditions, treatments, and significant changes during this reporting period.
 
   ${ collapse_template(physical_health_rating_guide_template) }
 fields:
@@ -1434,9 +1446,9 @@ fields:
 ---
 id: social_health_status
 question: |
-  How is the adult's social health?
+  How is ${ patients.familiar(unique_names=guardians, default="the adult") }'s social health?
 subquestion: |
-  Rate the adult's social and emotional health. Consider their interactions with others, activities, and any changes in relationships or engagement.
+  Rate ${ patients.familiar(unique_names=guardians, default="the adult") }'s social and emotional health. Consider their interactions with others, activities, and any changes in relationships or engagement.
 
   ${ collapse_template(social_health_rating_guide_template) }
 fields:
@@ -1450,13 +1462,13 @@ fields:
 ---
 id: medical_services
 question: |
-  What medical care does the adult get?
+  What medical care does ${ patients.familiar(unique_names=guardians, default="the adult") } get?
 subquestion: |
-  List the medical care the adult gets. Examples include visits with a primary care provider, specialists, or a dentist. Then say how well this care meets the adult's needs.
+  List the medical care ${ patients.familiar(unique_names=guardians, default="the adult") } gets. Examples include visits with a primary care provider, specialists, or a dentist. Then say how well this care meets ${ patients.familiar(unique_names=guardians, default="the adult") }'s needs.
 fields:
   - Type of medical services: patient_services_list
     maxlength: 74
-  - How well do these services meet the adult's needs?: medical_services_rating
+  - How well do these services meet ${ patients.familiar(unique_names=guardians, default="the adult") }'s needs?: medical_services_rating
     datatype: radio
     choices:
       - Excellent: excellent
@@ -1466,14 +1478,14 @@ fields:
 ---
 id: educational_services
 question: |
-  What training services does the adult get?
+  What training services does ${ patients.familiar(unique_names=guardians, default="the adult") } get?
 subquestion: |
-  List any school programs, training, or job services. If the adult does not get these services, choose "Not receiving this service."
+  List any school programs, training, or job services. If ${ patients.familiar(unique_names=guardians, default="the adult") } does not get these services, choose "Not receiving this service."
 fields:
   - Type of training services: patient_education_list
     maxlength: 71
     required: False
-  - How well do these services meet the adult's needs?: education_services_rating
+  - How well do these services meet ${ patients.familiar(unique_names=guardians, default="the adult") }'s needs?: education_services_rating
     datatype: radio
     choices:
       - Excellent: excellent
@@ -1484,13 +1496,13 @@ fields:
 ---
 id: other_services
 question: |
-  What other help does the adult get?
+  What other help does ${ patients.familiar(unique_names=guardians, default="the adult") } get?
 subquestion: |
-  List any other help, like meal delivery, housekeeping, transportation, or recreation. Then say how well this help meets the adult's needs.
+  List any other help, like meal delivery, housekeeping, transportation, or recreation. Then say how well this help meets ${ patients.familiar(unique_names=guardians, default="the adult") }'s needs.
 fields:
   - Type of other services: patient_other_services_list
     maxlength: 75
-  - How well do these services meet the adult's needs?: other_services_rating
+  - How well do these services meet ${ patients.familiar(unique_names=guardians, default="the adult") }'s needs?: other_services_rating
     datatype: radio
     choices:
       - Excellent: excellent
@@ -1500,9 +1512,9 @@ fields:
 ---
 id: contact_with_adult
 question: |
-  How often did you have contact with the adult during this reporting period?
+  How often did you have contact with ${ patients.familiar(unique_names=guardians, default="the adult") } during this reporting period?
 subquestion: |
-  Choose the type that best describes your typical contact with the adult.
+  Choose the type that best describes your typical contact with ${ patients.familiar(unique_names=guardians, default="the adult") }.
 fields:
   - Contact frequency: contact_frequency
     datatype: radio
@@ -1522,18 +1534,18 @@ fields:
 ---
 id: decision_making_participation
 question: |
-  Did the adult take part in making decisions?
+  Did ${ patients.familiar(unique_names=guardians, default="the adult") } take part in making decisions?
 subquestion: |
-  Massachusetts law requires guardians to encourage the adult to take part in decisions affecting their life. Tell the court how much the adult took part.
+  Massachusetts law requires guardians to encourage ${ patients.familiar(unique_names=guardians, default="the adult") } to take part in decisions affecting their life. Tell the court how much ${ patients.familiar(unique_names=guardians, default="the adult") } took part.
 fields:
-  - Did the adult take part in any decision-making?: if_decision_making
+  - Did ${ patients.familiar(unique_names=guardians, default="the adult") } take part in any decision-making?: if_decision_making
     datatype: yesnoradio
 ---
 id: what_decisions
 question: |
-  Which of these decisions did the adult take part in?
+  Which of these decisions did ${ patients.familiar(unique_names=guardians, default="the adult") } take part in?
 subquestion: |
-  Choose all that apply. Include any other areas where the adult took part.
+  Choose all that apply. Include any other areas where ${ patients.familiar(unique_names=guardians, default="the adult") } took part.
 fields:
   - Decisions: decision_making_areas
     datatype: checkboxes
@@ -1551,33 +1563,33 @@ fields:
 ---
 id: healthcare_provider_interaction
 question: |
-  Tell us about your contact with the adult's healthcare providers.
+  Tell us about your contact with ${ patients.familiar(unique_names=guardians, default="the adult") }'s healthcare providers.
 subquestion: |
-  Share a summary of how you have worked with the adult's doctors and healthcare team. Include details about communication and the quality of care.
+  Share a summary of how you have worked with ${ patients.familiar(unique_names=guardians, default="the adult") }'s doctors and healthcare team. Include details about communication and the quality of care.
 fields:
   - Summary of interactions: summary_interaction_explanation
     input type: area
 ---
 id: hospitalization_and_treatment
 question: |
-  Has the adult been in a hospital or another medical facility?
+  Has ${ patients.familiar(unique_names=guardians, default="the adult") } been in a hospital or another medical facility?
 subquestion: |
   Tell us about any hospital stays, other facility stays, or emergency room visits during this reporting period. If there were none, choose "No."
 fields:
-  - Was the adult in a hospital or facility?: is_acute_medical
+  - Was ${ patients.familiar(unique_names=guardians, default="the adult") } in a hospital or facility?: is_acute_medical
     datatype: yesnoradio
   - Describe the location and reason: acute_medical_location
     maxlength: 90
     show if: is_acute_medical
-  - Does the treatment or habilitation plan support the adult's best interests?: acute_medical_best
+  - Does the treatment or habilitation plan support ${ patients.familiar(unique_names=guardians, default="the adult") }'s best interests?: acute_medical_best
     datatype: yesnoradio
     show if: is_acute_medical
 ---
 id: future_care_plans
 question: |
-  What are your plans for the future care of the adult?
+  What are your plans for the future care of ${ patients.familiar(unique_names=guardians, default="the adult") }?
 subquestion: |
-  Describe what you expect to happen with the adult's care and services. If current care arrangements are working well and will continue, explain that. Do not simply write "no changes" without explanation.
+  Describe what you expect to happen with ${ patients.familiar(unique_names=guardians, default="the adult") }'s care and services. If current care arrangements are working well and will continue, explain that. Do not simply write "no changes" without explanation.
 fields:
   - Future care plans and expectations: future_plans_explanation
     input type: area
@@ -1605,16 +1617,16 @@ fields:
 ---
 id: fiduciary_responsibility
 question: |
-  Do you manage any of the adult's money or property?
+  Do you manage any of ${ patients.familiar(unique_names=guardians, default="the adult") }'s money or property?
 subquestion: |
-  Choose "Yes" if you get or manage money that belongs to the adult. This includes Social Security benefits, inheritances, or other assets. If you also serve as conservator, you must file a separate Conservator's Account.
+  Choose "Yes" if you get or manage money that belongs to ${ patients.familiar(unique_names=guardians, default="the adult") }. This includes Social Security benefits, inheritances, or other assets. If you also serve as conservator, you must file a separate Conservator's Account.
 fields:
-  - Do you manage money for the adult?: is_fiduciary
+  - Do you manage money for ${ patients.familiar(unique_names=guardians, default="the adult") }?: is_fiduciary
     datatype: yesnoradio
 ---
 id: fiduciary_role
 question: |
-  What legal right do you have to hold the adult's funds?
+  What legal right do you have to hold ${ patients.familiar(unique_names=guardians, default="the adult") }'s funds?
 subquestion: |
   Choose all that apply. If none apply, explain why you have the legal right to hold the funds.
 fields:
@@ -1711,7 +1723,7 @@ template: living_restrictions_help_template
 subject: |
   When should I answer "Yes"?
 content: |
-  Answer **Yes** if the adult is not allowed to do one of these things all or part of the time.
+  Answer **Yes** if ${ patients.familiar(unique_names=guardians, default="the adult") } is not allowed to do one of these things all or part of the time.
 
   If you answer **Yes** to any item, explain who set the limit and why.
 ---
@@ -1816,10 +1828,10 @@ review:
       % if defined("trial_court.division"):
       * division: ${ trial_court.division }
       % endif
-  - Edit: patient1_name_first
+  - Edit: patients[0].name.first
     button: |
       **Adult's name**:
-      ${ patient1_name_first } ${ patient1_name_middleinitial if patient1_name_middleinitial else '' } ${ patient1_name_last }
+      ${ patients[0].name.first } ${ patients[0].name.middle if patients[0].name.middle else '' } ${ patients[0].name.last }
   - Edit: report_type
     button: |
       **Which form**:
@@ -1846,10 +1858,10 @@ review:
       **Relationship description**:
       ${ relation_other_description if guardian_relationship == "other" else "N/A" }
     show if: guardian_relationship == "other"
-  - Edit: patient1_address_on_one_line
+  - Edit: patients[0].address.address
     button: |
       **Current address**:
-      ${ patient1_address_on_one_line }
+      ${ patients[0].address.on_one_line() }
   - Edit: housing_type
     button: |
       **Living arrangement**:
@@ -2184,9 +2196,9 @@ attachment:
   fields:
       - "docket_number": ${ docket_number }
       - "trial_court_division": ${ trial_court.division }
-      - "patient1_name_first": ${ patient1_name_first }
-      - "patient1_name_middleinitial": ${ patient1_name_middleinitial }
-      - "patient1_name_last": ${ patient1_name_last }
+      - "patient1_name_first": ${ patients[0].name.first }
+      - "patient1_name_middleinitial": ${ patients[0].name.middle }
+      - "patient1_name_last": ${ patients[0].name.last }
       - "reporttype_60day": ${ report_type == "sixty_day" }
       - "reporttype_annual": ${ report_type == "annual" }
       - "reportperiod_beginning": ${ reportperiod_beginning.format() }
@@ -2199,7 +2211,7 @@ attachment:
       - "relation_professional_description": ${ relation_professional_description if guardian_relationship == "professional" else "" }
       - "relation_other": ${ guardian_relationship == "other" }
       - "relation_other_description": ${ relation_other_description if guardian_relationship == "other" else "" }
-      - "patient1_address_on_one_line": ${ patient1_address_on_one_line }
+      - "patient1_address_on_one_line": ${ patients[0].address.on_one_line() }
       - "patient_housing_private": ${ housing_type == "private" }
       - "patient_housing_foster": ${ housing_type == "foster" }
       - "patient_housing_group": ${ housing_type == "group" }
